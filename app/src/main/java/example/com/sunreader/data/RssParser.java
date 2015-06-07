@@ -1,5 +1,6 @@
 package example.com.sunreader.data;
 
+import android.util.Log;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -27,12 +28,14 @@ public class RssParser {
     }
 
     private List<RssItem> readFeed(XmlPullParser parser) throws XmlPullParserException, IOException {
+
         parser.require(XmlPullParser.START_TAG, null, "rss");
         String title = null;
         String link = null;
         String description = null;
         List<RssItem> items = new ArrayList<RssItem>();
         while (parser.next() != XmlPullParser.END_DOCUMENT) {
+            Log.v("RSSParser/readFeed", "Access loop");
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }

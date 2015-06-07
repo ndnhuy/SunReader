@@ -10,11 +10,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +28,7 @@ import example.com.sunreader.value_object.RssItem;
 public class FeedItemsFragment extends Fragment {
 
     private View mRootView;
-    private ArrayAdapter<String> mFeedItemsAdapter;
+    private ArrayAdapter<String> mFeedItemsAdapter = null;
 
     private static final String LOG_TAG = FeedItemsFragment.class.getSimpleName();
     public FeedItemsFragment() {
@@ -58,17 +61,20 @@ public class FeedItemsFragment extends Fragment {
         return mRootView;
     }
 
-    private class RssFeedsDownloader extends AsyncTask<String, Void, RssItem[]> {
+    private class RssFeedsDownloader extends AsyncTask<String, String, RssItem[]> {
 
         @Override
         protected RssItem[] doInBackground(String... urlStrs) {
             List<RssItem> rssItems = null;
             RssParser parser = new RssParser();
             try {
-                rssItems = parser.parse(
-                        new URL(urlStrs[0])
-                                .openConnection().getInputStream()
-                );
+                publishProgress();
+                URL url = new URL(urlStrs[0]);
+                URLConnection urlConnection = url.openConnection();
+                InputStream inputStream = urlConnection.getInputStream();
+                rssItems = parser.parse(inputStream);
+
+
             } catch (XmlPullParserException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -80,6 +86,11 @@ public class FeedItemsFragment extends Fragment {
 
 
             return rssItemsArr;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            Toast.makeText(getActivity(), "Downloading...", Toast.LENGTH_SHORT).show();
         }
 
         @Override

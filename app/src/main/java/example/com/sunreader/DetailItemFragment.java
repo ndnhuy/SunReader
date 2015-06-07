@@ -2,7 +2,6 @@ package example.com.sunreader;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +15,8 @@ public class DetailItemFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.v(LOG_TAG + "/onCreate()", "mFeedTitle = " + mFeedTitle);
         super.onCreate(savedInstanceState);
         mFeedTitle = getArguments().getString(DetailItemActivity.MY_INTENT_MESSAGE);
-
-
     }
 
     @Override

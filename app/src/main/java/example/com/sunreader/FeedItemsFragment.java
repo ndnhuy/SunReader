@@ -1,5 +1,6 @@
 package example.com.sunreader;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -47,10 +48,10 @@ public class FeedItemsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 String feedTitle = (String) adapterView.getItemAtPosition(position);
-                getActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.container, DetailItemFragment.newInstance(feedTitle))
-                        .commit();
+                // Call detail item activity
+                Intent intent = new Intent(getActivity(), DetailItemActivity.class);
+                intent.putExtra(DetailItemActivity.MY_INTENT_MESSAGE, feedTitle);
+                getActivity().startActivity(intent);
             }
         });
 

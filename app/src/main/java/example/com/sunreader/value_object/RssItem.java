@@ -5,12 +5,12 @@ public class RssItem {
 
     private final String title;
     private final String link;
-    private final String description;
+    private final String content;
 
     public RssItem(String title, String link, String description) {
         this.title = title;
         this.link = link;
-        this.description = description;
+        this.content = description;
     }
 
     public String getTitle() {
@@ -21,7 +21,7 @@ public class RssItem {
         return link;
     }
 
-    public String getDescription() {
-        return description;
+    public String getContent() {
+        return content;
     }
 }

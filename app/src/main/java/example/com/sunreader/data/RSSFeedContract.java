@@ -36,5 +36,22 @@ public class RSSFeedContract {
         public static final String COLUMN_AUTHOR = "author";
         public static final String COLUMN_PUBLISHED_DATETEXT = "published_date";
         public static final String COLUMN_FEED_ID = "feed_id";
+
+        public static Uri buildItemUri(long id) {
+            Uri uri = ContentUris.withAppendedId(CONTENT_URI, id);
+            return uri;
+        }
+
+        public static Uri buildItemWithFeedId(long id) {
+            Uri uri = CONTENT_URI.buildUpon().appendQueryParameter(
+                                                ItemEntry.COLUMN_FEED_ID,
+                                                Long.toString(id)
+                                                ).build();
+            return uri;
+        }
+
+        public static String getFeedIdFromUri(Uri uri) {
+            return uri.getQueryParameter(ItemEntry.COLUMN_FEED_ID);
+        }
     }
 }

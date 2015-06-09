@@ -51,6 +51,45 @@ public class RSSFeedProvider extends ContentProvider {
                 );
                 break;
             }
+            case UriMatcherBuilder.ITEM: {
+                String feedId = RSSFeedContract.ItemEntry.getFeedIdFromUri(uri);
+                if (feedId == null) {
+                    returnCursor = mOpenHelper.getReadableDatabase().query(
+                            RSSFeedContract.ItemEntry.TABLE_NAME,
+                            projection,
+                            selection,
+                            selectionArgs,
+                            null,
+                            null,
+                            sortOrder
+                    );
+                }
+                else {
+                    returnCursor = mOpenHelper.getReadableDatabase().query(
+                            RSSFeedContract.ItemEntry.TABLE_NAME,
+                            projection,
+                            RSSFeedContract.ItemEntry.COLUMN_FEED_ID + " = ?",
+                            new String[] {feedId},
+                            null,
+                            null,
+                            sortOrder
+                    );
+                }
+
+                break;
+            }
+            case UriMatcherBuilder.ITEM_ID: {
+                returnCursor = mOpenHelper.getReadableDatabase().query(
+                        RSSFeedContract.ItemEntry.TABLE_NAME,
+                        projection,
+                        RSSFeedContract.ItemEntry._ID + " = " + "?",
+                        new String[]{Long.toString(ContentUris.parseId(uri))},
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
 
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -83,6 +122,16 @@ public class RSSFeedProvider extends ContentProvider {
                 }
                 break;
             }
+            case UriMatcherBuilder.ITEM: {
+                long _id = db.insert(RSSFeedContract.ItemEntry.TABLE_NAME, null, contentValues);
+                if (_id > 0) {
+                    returnUri = RSSFeedContract.ItemEntry.buildItemUri(_id);
+                }
+                else {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+                break;
+            }
         }
 
         getContext().getContentResolver().notifyChange(uri, null);
@@ -98,6 +147,14 @@ public class RSSFeedProvider extends ContentProvider {
             case UriMatcherBuilder.FEED: {
                 rowsDeleted = db.delete(
                         RSSFeedContract.FeedEntry.TABLE_NAME,
+                        selection,
+                        selectionArgs
+                );
+                break;
+            }
+            case UriMatcherBuilder.ITEM: {
+                rowsDeleted = db.delete(
+                        RSSFeedContract.ItemEntry.TABLE_NAME,
                         selection,
                         selectionArgs
                 );

@@ -17,7 +17,7 @@ public class TestProvider extends AndroidTestCase {
         deleteAllRecords();
     }
 
-    public void testInsertDb() {
+    public void testInsertFeedDb() {
         RSSFeedDBHelper dbHelper = new RSSFeedDBHelper(mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -29,10 +29,33 @@ public class TestProvider extends AndroidTestCase {
         assertTrue(feedRowId != -1);
 
         Cursor cursor = getCursorFromUri(RSSFeedContract.FeedEntry.CONTENT_URI);
-
         TestDB.validateCursor(cursor, testFeedValues);
 
         cursor.close();
+    }
+
+    public void testInsertItemDb() {
+        RSSFeedDBHelper dbHelper = new RSSFeedDBHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        // Insert feed
+        Uri insertedFeedUri = insertFakeFeedData(TestDB.createFakeFeedValues());
+        long insertedFeedRow = ContentUris.parseId(insertedFeedUri);
+
+        // Insert item
+        ContentValues testItemValues = TestDB.createFakeItemValues(insertedFeedRow);
+        Uri insertedItemUri = mContext.getContentResolver().insert(
+                RSSFeedContract.ItemEntry.CONTENT_URI,
+                testItemValues
+        );
+        assertTrue(insertedItemUri != null);
+
+        long insertedItemRow = ContentUris.parseId(insertedItemUri);
+        assertTrue(insertedItemRow != -1);
+
+        // Verify
+        Cursor cursor = getCursorFromUri(RSSFeedContract.ItemEntry.CONTENT_URI);
+        TestDB.validateCursor(cursor, testItemValues);
     }
 
     public void testDeleteDb() {
@@ -64,7 +87,6 @@ public class TestProvider extends AndroidTestCase {
         Uri insertedFeedUri = insertFakeFeedData(testFeedValues);
         long feedRowId = ContentUris.parseId(insertedFeedUri);
         assertTrue(feedRowId != -1);
-
         Cursor cursor = mContext.getContentResolver().query(
                 RSSFeedContract.FeedEntry.buildFeedUri(feedRowId),
                 null,
@@ -75,6 +97,66 @@ public class TestProvider extends AndroidTestCase {
 
         TestDB.validateCursor(cursor, testFeedValues);
     }
+
+    public void testQueryItemWithId() {
+        // Insert feed
+        ContentValues testFeedValues = TestDB.createFakeFeedValues();
+        Uri insertedFeedUri = insertFakeFeedData(testFeedValues);
+        long feedRowId = ContentUris.parseId(insertedFeedUri);
+        assertTrue(feedRowId != -1);
+
+        // Insert item based on feed
+        ContentValues testItemValues = TestDB.createFakeItemValues(feedRowId);
+        Uri insertedItemUri = mContext.getContentResolver().insert(
+                RSSFeedContract.ItemEntry.CONTENT_URI,
+                testItemValues
+        );
+        long itemRowId = ContentUris.parseId(insertedItemUri);
+        assertTrue(itemRowId != -1);
+
+        // Query
+        Cursor cursor = mContext.getContentResolver().query(
+                RSSFeedContract.ItemEntry.buildItemUri(itemRowId),
+                null,
+                null,
+                null,
+                null
+        );
+
+        TestDB.validateCursor(cursor, testItemValues);
+
+    }
+
+    public void testQueryItemOfFeed() {
+        // Insert feed
+        ContentValues testFeedValues = TestDB.createFakeFeedValues();
+        Uri insertedFeedUri = insertFakeFeedData(testFeedValues);
+        long feedRowId = ContentUris.parseId(insertedFeedUri);
+        assertTrue(feedRowId != -1);
+
+        // Insert item based on feed
+        ContentValues testItemValues = TestDB.createFakeItemValues(feedRowId);
+        Uri insertedItemUri = mContext.getContentResolver().insert(
+                RSSFeedContract.ItemEntry.CONTENT_URI,
+                testItemValues
+        );
+        long itemRowId = ContentUris.parseId(insertedItemUri);
+        assertTrue(itemRowId != -1);
+
+        // Query
+        Cursor cursor = mContext.getContentResolver().query(
+                RSSFeedContract.ItemEntry.buildItemWithFeedId(feedRowId),
+                null,
+                null,
+                null,
+                null
+        );
+
+        TestDB.validateCursor(cursor, testItemValues);
+    }
+
+
+
 
     private void deleteAllRecords() {
         mContext.getContentResolver().delete(
@@ -107,6 +189,5 @@ public class TestProvider extends AndroidTestCase {
 
         return insertedFeedUri;
     }
-
 
 }

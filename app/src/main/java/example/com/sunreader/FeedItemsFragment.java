@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 
+import example.com.sunreader.value_object.RssFeed;
 import example.com.sunreader.value_object.RssItem;
 
 
@@ -45,7 +47,7 @@ public class FeedItemsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.rss_reader_fragment, container, false);
-        new RssFeedsDownloader().execute("http://www.pcworld.com/index.rss");
+        new RssFeedsDownloader().execute("http://www.androidcentral.com/rss.xml");
 
 //        ListView listView = (ListView) mRootView.findViewById(R.id.listview_feeds);
 //        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -62,13 +64,41 @@ public class FeedItemsFragment extends Fragment {
         return mRootView;
     }
 
-    private class RssFeedsDownloader extends AsyncTask<String, String, RssItem[]> {
+    private class RssFeedsDownloader extends AsyncTask<String, String, RssFeed> {
+        private RssFeed getFeedDataFromJSON(String JsonRssString) throws JSONException {
+            JSONObject RssJSON = new JSONObject(JsonRssString);
+            JSONObject responseDataJSON = RssJSON.getJSONObject("responseData");
+            JSONObject feedJSON = responseDataJSON.getJSONObject("feed");
+            JSONArray entriesJSON = feedJSON.getJSONArray("entries");
 
+            RssFeed feed = new RssFeed(
+                    feedJSON.getString("title"),
+                    feedJSON.getString("link"),
+                    feedJSON.getString("feedUrl"),
+                    null
+            );
+            for (int i = 0; i < entriesJSON.length(); i++) {
+                JSONObject itemJSON = entriesJSON.getJSONObject(i);
+                RssItem rssItem = new RssItem(
+                        itemJSON.getString("title"),
+                        itemJSON.getString("link"),
+                        itemJSON.getString("content")
+                );
+                feed.putItem(rssItem);
+
+                Log.v(LOG_TAG + "/getFeedDataFromJSON(..)", rssItem.getTitle() + rssItem.getLink() + rssItem.getContent());
+            }
+
+
+            return feed;
+        }
         @Override
-        protected RssItem[] doInBackground(String... urlStrs) {
+        protected RssFeed doInBackground(String... urlStrs) {
             try {
                 final String RSS_BASE_URL = "https://ajax.googleapis.com/ajax/services/feed/load?v=1.0&";
                 final String QUERY_PARAM = "q";
+
+                Log.v(LOG_TAG, "Start connecting");
 
                 Uri builtUri = Uri.parse(RSS_BASE_URL).buildUpon()
                         .appendQueryParameter(QUERY_PARAM, urlStrs[0])
@@ -79,30 +109,35 @@ public class FeedItemsFragment extends Fragment {
                 HttpURLConnection connection = (HttpURLConnection)url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.connect();
+                Log.v(LOG_TAG, "DONE CONNECT");
 
-                Log.v(LOG_TAG, "Connect successfully.");
 
                 // Read the input stream into a String
                 InputStream inputStream = connection.getInputStream();
+                Log.v(LOG_TAG, "DONE GET INPUT STREAM");
                 if (inputStream == null) {
                     Log.v(LOG_TAG, "Input stream is empty ");
                     return null;
                 }
 
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                StringBuffer buffer = new StringBuffer();
-                String line;
+                Log.v(LOG_TAG, "Connect successfully.");
 
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder builder = new StringBuilder();
+
+                String line = reader.readLine();
                 int i = 0;
-                while ((line = reader.readLine()) != null) {
-                    buffer.append(line);
+                while (line != null) {
+                    Log.v(LOG_TAG, "loop");
+                    builder.append(line);
+                    line = reader.readLine();
                 }
 
-                if (buffer.length() == 0) {
+                if (builder.length() == 0) {
                     return null;
                 }
 
-                JSONObject json = new JSONObject(buffer.toString());
+                return getFeedDataFromJSON(builder.toString());
 
             } catch (MalformedURLException e) {
                 e.printStackTrace();
@@ -122,8 +157,8 @@ public class FeedItemsFragment extends Fragment {
             Toast.makeText(getActivity(), "Downloading...", Toast.LENGTH_SHORT).show();
         }
 
-        @Override
-        protected void onPostExecute(RssItem[] rssItems) {
+//        @Override
+//        protected void onPostExecute(RssItem[] rssItems) {
 //            ArrayList<String> feedTitles = new ArrayList<String>();
 //            for (RssItem item : rssItems) {
 //                feedTitles.add(item.getTitle());
@@ -138,6 +173,6 @@ public class FeedItemsFragment extends Fragment {
 //
 //            ListView listView = (ListView) mRootView.findViewById(R.id.listview_feeds);
 //            listView.setAdapter(mFeedItemsAdapter);
-        }
+//        }
     }
 }

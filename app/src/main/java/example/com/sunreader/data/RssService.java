@@ -215,7 +215,7 @@ public class RssService {
 //
 //            mFeedItemsAdapter = new ArrayAdapter<String>(
 //                    getActivity(),
-//                    R.layout.list_rss_feeds,
+//                    R.layout.one_item_in_list,
 //                    R.id.list_rss_feed_textview,
 //                    feedTitles
 //            );

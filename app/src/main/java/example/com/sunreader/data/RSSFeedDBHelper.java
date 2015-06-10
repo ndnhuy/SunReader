@@ -16,12 +16,14 @@ public class RSSFeedDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        Log.v(LOG_TAG, "CREATE TABLE FEED AND ITEM");
         final String SQL_CREATE_FEED_TABLE = "CREATE TABLE " + RSSFeedContract.FeedEntry.TABLE_NAME
                 + " (" +
                 RSSFeedContract.FeedEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 RSSFeedContract.FeedEntry.COLUMN_TITLE + " TEXT NOT NULL," +
                 RSSFeedContract.FeedEntry.COLUMN_LINK + " TEXT UNIQUE NOT NULL," +
-                RSSFeedContract.FeedEntry.COLUMN_FEED_URL + " TEXT UNIQUE NOT NULL" +
+                RSSFeedContract.FeedEntry.COLUMN_FEED_URL + " TEXT UNIQUE NOT NULL, " +
+                "UNIQUE (" + RSSFeedContract.FeedEntry.COLUMN_LINK + ") ON CONFLICT REPLACE" +
                 " )";
         final String SQL_CREATE_ITEM_TABLE = "CREATE TABLE " + RSSFeedContract.ItemEntry.TABLE_NAME
                 + " (" +
@@ -34,9 +36,10 @@ public class RSSFeedDBHelper extends SQLiteOpenHelper {
                 RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT + " TEXT NOT NULL," +
                 RSSFeedContract.ItemEntry.COLUMN_FEED_ID + " INTEGER NOT NULL," +
                 " FOREIGN KEY (" + RSSFeedContract.ItemEntry.COLUMN_FEED_ID + ") REFERENCES " +
-                RSSFeedContract.FeedEntry.TABLE_NAME + " (" + RSSFeedContract.FeedEntry._ID + ")" +
-                ")";
+                RSSFeedContract.FeedEntry.TABLE_NAME + " (" + RSSFeedContract.FeedEntry._ID + "), " +
 
+                " UNIQUE (" + RSSFeedContract.ItemEntry.COLUMN_LINK + ") ON CONFLICT REPLACE" +
+                ")";
 
         sqLiteDatabase.execSQL(SQL_CREATE_FEED_TABLE);
         Log.v(LOG_TAG, "Create Feed table " + SQL_CREATE_FEED_TABLE);

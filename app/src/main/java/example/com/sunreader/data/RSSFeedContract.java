@@ -33,9 +33,9 @@ public class RSSFeedContract {
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_LINK = "link";
         public static final String COLUMN_CONTENT = "content";
-        public static final String COLUMN_CONTENT_SNIPPET = "content_snippet";
+        public static final String COLUMN_CONTENT_SNIPPET = "contentSnippet";
         public static final String COLUMN_AUTHOR = "author";
-        public static final String COLUMN_PUBLISHED_DATETEXT = "published_date";
+        public static final String COLUMN_PUBLISHED_DATETEXT = "publishedDate";
         public static final String COLUMN_FEED_ID = "feed_id";
 
         public static Uri buildItemUri(long id) {

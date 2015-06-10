@@ -44,7 +44,56 @@ public class RssService {
             JSONObject feedJSON = responseDataJSON.getJSONObject("feed");
             JSONArray entriesJSON = feedJSON.getJSONArray("entries");
 
-            // Insert feed into database
+            long feedRowId = insertFeedIntoDatabase(feedJSON);
+            insertItemIntoDatabase(entriesJSON, feedRowId);
+
+            return null;
+        }
+
+        private void insertItemIntoDatabase(JSONArray entriesJSON, long feedRowId) throws JSONException {
+            for (int i = 0; i < entriesJSON.length(); i++) {
+                JSONObject itemJSON = entriesJSON.getJSONObject(i);
+
+                ContentValues itemValues = new ContentValues();
+                itemValues.put(
+                        RSSFeedContract.ItemEntry.COLUMN_TITLE,
+                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_TITLE)
+                );
+                itemValues.put(
+                        RSSFeedContract.ItemEntry.COLUMN_LINK,
+                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_LINK)
+                );
+                itemValues.put(
+                        RSSFeedContract.ItemEntry.COLUMN_AUTHOR,
+                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_AUTHOR)
+                );
+                itemValues.put(
+                        RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT,
+                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT)
+                );
+                itemValues.put(
+                        RSSFeedContract.ItemEntry.COLUMN_CONTENT_SNIPPET,
+                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_CONTENT_SNIPPET)
+                );
+                itemValues.put(
+                        RSSFeedContract.ItemEntry.COLUMN_CONTENT,
+                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_CONTENT)
+                );
+                itemValues.put(
+                        RSSFeedContract.ItemEntry.COLUMN_FEED_ID,
+                        feedRowId
+                );
+
+                Log.v(LOG_TAG, itemValues.getAsString(RSSFeedContract.ItemEntry.COLUMN_TITLE) + " " + itemValues.getAsString(RSSFeedContract.ItemEntry.COLUMN_LINK));
+
+                mContext.getContentResolver().insert(
+                        RSSFeedContract.ItemEntry.CONTENT_URI,
+                        itemValues
+                );
+            }
+        }
+
+        private long insertFeedIntoDatabase(JSONObject feedJSON) throws JSONException {
             ContentValues feedValues = new ContentValues();
             feedValues.put(
                     RSSFeedContract.FeedEntry.COLUMN_TITLE,
@@ -85,49 +134,9 @@ public class RssService {
                 feedRowId = ContentUris.parseId(insertedFeedUri);
             }
 
-            //End insert feed ---------------------
-
-            //Insert item
-            ContentValues itemValues = new ContentValues();
-            for (int i = 0; i < entriesJSON.length(); i++) {
-                JSONObject itemJSON = entriesJSON.getJSONObject(i);
-                itemValues.put(
-                        RSSFeedContract.ItemEntry.COLUMN_TITLE,
-                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_TITLE)
-                );
-                itemValues.put(
-                        RSSFeedContract.ItemEntry.COLUMN_LINK,
-                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_LINK)
-                );
-                itemValues.put(
-                        RSSFeedContract.ItemEntry.COLUMN_AUTHOR,
-                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_AUTHOR)
-                );
-                itemValues.put(
-                        RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT,
-                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT)
-                );
-                itemValues.put(
-                        RSSFeedContract.ItemEntry.COLUMN_CONTENT_SNIPPET,
-                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_CONTENT_SNIPPET)
-                );
-                itemValues.put(
-                        RSSFeedContract.ItemEntry.COLUMN_CONTENT,
-                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_CONTENT)
-                );
-                itemValues.put(
-                        RSSFeedContract.ItemEntry.COLUMN_FEED_ID,
-                        feedRowId
-                );
-
-                mContext.getContentResolver().insert(
-                        RSSFeedContract.ItemEntry.CONTENT_URI,
-                        itemValues
-                );
-            }
-            //End insert item ----------------------
-            return null;
+            return feedRowId;
         }
+
         @Override
         protected Void doInBackground(String... urlStrs) {
             try {

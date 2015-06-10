@@ -132,6 +132,8 @@ public class RSSFeedProvider extends ContentProvider {
                 }
                 break;
             }
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
         getContext().getContentResolver().notifyChange(uri, null);

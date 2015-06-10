@@ -18,6 +18,7 @@ public class RSSFeedContract {
         public static final String TABLE_NAME = "feed";
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_LINK = "link";
+        public static final String COLUMN_FEED_URL = "feedUrl";
 
         public static Uri buildFeedUri(long id) {
             Uri uri = ContentUris.withAppendedId(CONTENT_URI, id);

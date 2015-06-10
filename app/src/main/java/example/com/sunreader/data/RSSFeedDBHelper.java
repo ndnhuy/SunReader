@@ -20,13 +20,14 @@ public class RSSFeedDBHelper extends SQLiteOpenHelper {
                 + " (" +
                 RSSFeedContract.FeedEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 RSSFeedContract.FeedEntry.COLUMN_TITLE + " TEXT NOT NULL," +
-                RSSFeedContract.FeedEntry.COLUMN_LINK + " TEXT UNIQUE NOT NULL" +
+                RSSFeedContract.FeedEntry.COLUMN_LINK + " TEXT UNIQUE NOT NULL," +
+                RSSFeedContract.FeedEntry.COLUMN_FEED_URL + " TEXT UNIQUE NOT NULL" +
                 " )";
         final String SQL_CREATE_ITEM_TABLE = "CREATE TABLE " + RSSFeedContract.ItemEntry.TABLE_NAME
                 + " (" +
                 RSSFeedContract.ItemEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 RSSFeedContract.ItemEntry.COLUMN_TITLE + " TEXT NOT NULL," +
-                RSSFeedContract.ItemEntry.COLUMN_LINK + " TEXT NOT NULL," +
+                RSSFeedContract.ItemEntry.COLUMN_LINK + " TEXT UNIQUE NOT NULL," +
                 RSSFeedContract.ItemEntry.COLUMN_CONTENT + " TEXT NOT NULL," +
                 RSSFeedContract.ItemEntry.COLUMN_CONTENT_SNIPPET + " TEXT NOT NULL," +
                 RSSFeedContract.ItemEntry.COLUMN_AUTHOR + " TEXT NOT NULL," +

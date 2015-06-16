@@ -1,6 +1,5 @@
 package example.com.sunreader;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -10,16 +9,14 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBarActivity;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
+import example.com.sunreader.controller.FeedNamesViewController;
 import example.com.sunreader.data.RSSFeedContract;
 import example.com.sunreader.data.RssService;
 
@@ -38,21 +35,6 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
         setUpBasicUI();
 
-//        //TEST
-//        mFeedArrayAdapter = new ArrayAdapter<String>(
-//                this,
-//                R.layout.one_feed_name_in_list,
-//                R.id.feed_name_textview,
-//                new ArrayList<String>(Arrays.asList(new String[] {
-//                        "ONE", "TWO", "THREE"
-//                }))
-//
-//        );
-//        ListView listView = (ListView) findViewById(R.id.left_drawer);
-//        listView.setAdapter(mFeedArrayAdapter);
-//        //END TEST---------
-
-
         // Set up loader for side bar
         mFeedNamesAdapter = new SimpleCursorAdapter(
                 this,
@@ -63,7 +45,7 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         );
         ListView listView = (ListView) findViewById(R.id.left_drawer);
         listView.setAdapter(mFeedNamesAdapter);
-        listView.setOnItemClickListener(new FeedNamesViewController());
+        listView.setOnItemClickListener(new FeedNamesViewController(this, mFeedNamesAdapter, getSupportFragmentManager()));
 
         getSupportLoaderManager().initLoader(FEED_NAME_LOADER, null, this);
 
@@ -135,22 +117,6 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
     }
 
     @Override
-    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
-
-//        mFeedNamesAdapter = new SimpleCursorAdapter(
-//                this,
-//                R.layout.one_feed_name_in_list,
-//                null,
-//                new String[] {RSSFeedContract.FeedEntry.COLUMN_TITLE},
-//                new int[] {R.id.feed_name_textview}
-//        );
-//        ListView listView = (ListView) findViewById(R.id.left_drawer);
-//        listView.setAdapter(mFeedNamesAdapter);
-
-        return super.onCreateView(parent, name, context, attrs);
-    }
-
-    @Override
     protected void onResume() {
         getSupportLoaderManager().restartLoader(FEED_NAME_LOADER, null, this);
         super.onResume();
@@ -158,7 +124,6 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Log.v(LOG_TAG, "inside onCreateLoader");
         return new CursorLoader(
                 this,
                 RSSFeedContract.FeedEntry.CONTENT_URI,
@@ -171,33 +136,11 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Log.v(LOG_TAG, "inside onLoadFinished");
         mFeedNamesAdapter.swapCursor(data);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mFeedNamesAdapter.swapCursor(null);
-    }
-
-    private class FeedNamesViewController implements AdapterView.OnItemClickListener {
-
-        @Override
-        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            Toast.makeText(getApplicationContext(), "Click on feed name", Toast.LENGTH_LONG).show();
-            Cursor cursor = mFeedNamesAdapter.getCursor();
-            // Create fragment with bundle contains ID of selected feed
-            Bundle feedIdBundle = new Bundle();
-            feedIdBundle.putInt(RSSFeedContract.ItemEntry.COLUMN_FEED_ID, cursor.getInt(0));
-
-            FeedItemsFragment feedItemsFragment = new FeedItemsFragment();
-            feedItemsFragment.setArguments(feedIdBundle);
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.container, feedItemsFragment)
-                    .commit();
-
-            mDrawerLayout.closeDrawers();
-        }
     }
 }

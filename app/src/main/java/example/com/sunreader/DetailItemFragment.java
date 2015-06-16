@@ -1,37 +1,80 @@
 package example.com.sunreader;
 
+
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.text.Html;
+import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class DetailItemFragment extends Fragment {
+import example.com.sunreader.data.RSSFeedContract;
+
+public class DetailItemFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private String LOG_TAG = DetailItemActivity.class.getSimpleName();
-    private String mFeedTitle;
+
+    private final int DETAIL_ITEM_LOADER = 0;
+    private View mRootView;
 
     public DetailItemFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mFeedTitle = getArguments().getString(DetailItemActivity.MY_INTENT_MESSAGE);
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.detail_item_fragment, container, false);
-        TextView textView = (TextView) rootView.findViewById(R.id.detail_item_fragment_textview);
-        textView.setText(mFeedTitle);
-        return rootView;
+        mRootView = inflater.inflate(R.layout.detail_item_fragment, container, false);
+        // new RssService.RssFeedsDownloader(getActivity()).execute("http://www.androidcentral.com/rss.xml")
+        return mRootView;
     }
 
-    public static Fragment newInstance(String feedTitle) {
-        DetailItemFragment detailItemFragment = new DetailItemFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString(DetailItemActivity.MY_INTENT_MESSAGE, feedTitle);
-        detailItemFragment.setArguments(bundle);
-        return detailItemFragment;
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(DETAIL_ITEM_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        int itemId = -1;
+        Bundle receivedBundle = getArguments();
+        if (receivedBundle != null) {
+            itemId = receivedBundle.getInt(DetailItemActivity.ITEM_ID);
+        }
+        return new CursorLoader(
+                getActivity(),
+                RSSFeedContract.ItemEntry.buildItemUri(itemId),
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+        if (!data.moveToFirst())
+            return;
+
+
+        String rawDetail = data.getString(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_CONTENT));
+        Spanned detail = Html.fromHtml(rawDetail);
+        TextView textView = (TextView)mRootView.findViewById(R.id.detail_item_fragment_textview);
+        textView.setText(detail);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 }

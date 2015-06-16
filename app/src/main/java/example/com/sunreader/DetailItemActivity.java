@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 
 public class DetailItemActivity extends ActionBarActivity {
-    public static final String MY_INTENT_MESSAGE = "intent_message";
+    public static final String ITEM_ID = "item_id";
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -13,11 +13,16 @@ public class DetailItemActivity extends ActionBarActivity {
 
         // Get Feed title from Intent
         Intent intent = getIntent();
-        String feedTitle = intent.getStringExtra(MY_INTENT_MESSAGE);
+        int itemId = intent.getIntExtra(ITEM_ID, -1);
+
+        Bundle bundle = new Bundle();
+        bundle.putInt(ITEM_ID, itemId);
+        DetailItemFragment detailItemFragment = new DetailItemFragment();
+        detailItemFragment.setArguments(bundle);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, DetailItemFragment.newInstance(feedTitle))
+                    .add(R.id.container, detailItemFragment)
                     .commit();
         }
     }

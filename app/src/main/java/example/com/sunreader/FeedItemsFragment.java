@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import example.com.sunreader.controller.ItemsViewController;
 import example.com.sunreader.data.RSSFeedContract;
 
 
@@ -22,7 +23,6 @@ public class FeedItemsFragment extends Fragment implements LoaderManager.LoaderC
 
     private View mRootView;
     private SimpleCursorAdapter mFeedItemsAdapter = null;
-    private int feedId;
 
 
     public FeedItemsFragment() {
@@ -33,16 +33,12 @@ public class FeedItemsFragment extends Fragment implements LoaderManager.LoaderC
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        feedId = -1;
-        Bundle args = getArguments();
-        if (args != null) {
-            feedId = args.getInt(RSSFeedContract.ItemEntry.COLUMN_FEED_ID);
-        }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.rss_reader_fragment, container, false);
+        mRootView = inflater.inflate(R.layout.feed_items_list_fragment, container, false);
        // new RssService.RssFeedsDownloader(getActivity()).execute("http://www.androidcentral.com/rss.xml");
 
         mFeedItemsAdapter = new SimpleCursorAdapter(
@@ -56,6 +52,7 @@ public class FeedItemsFragment extends Fragment implements LoaderManager.LoaderC
 
         ListView listView = (ListView) mRootView.findViewById(R.id.listview_feeds);
         listView.setAdapter(mFeedItemsAdapter);
+        listView.setOnItemClickListener(new ItemsViewController(getActivity(), mFeedItemsAdapter));
 
 //        ListView listView = (ListView) mRootView.findViewById(R.id.listview_feeds);
 //        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -80,6 +77,11 @@ public class FeedItemsFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public Loader onCreateLoader(int id, Bundle args) {
+        int feedId = -1;
+        Bundle feedIdArg = getArguments();
+        if (feedIdArg != null) {
+            feedId = feedIdArg.getInt(RSSFeedContract.ItemEntry.COLUMN_FEED_ID);
+        }
         return new CursorLoader(
                 getActivity(),
                 RSSFeedContract.ItemEntry.buildItemWithFeedId(feedId),
@@ -99,5 +101,4 @@ public class FeedItemsFragment extends Fragment implements LoaderManager.LoaderC
     public void onLoaderReset(Loader<Cursor> loader) {
         mFeedItemsAdapter.swapCursor(null);
     }
-
 }

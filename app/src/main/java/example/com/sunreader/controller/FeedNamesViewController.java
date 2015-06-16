@@ -27,7 +27,7 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener 
     }
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        Toast.makeText(mActivity.getApplicationContext(), "Click on feed name", Toast.LENGTH_LONG).show();
+        Toast.makeText(mActivity.getApplicationContext(), "Click on feed name", Toast.LENGTH_SHORT).show();
         Cursor cursor = mFeedNamesAdapter.getCursor();
         // Create fragment with bundle contains ID of selected feed
         Bundle feedIdBundle = new Bundle();

@@ -1,21 +1,28 @@
 package example.com.sunreader;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
-import example.com.sunreader.data.RssService;
+import example.com.sunreader.data.RSSFeedContract;
 
 
-public class FeedItemsFragment extends Fragment {
+public class FeedItemsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final int FEED_LOADER = 0;
 
     private View mRootView;
-    private ArrayAdapter<String> mFeedItemsAdapter = null;
+    private SimpleCursorAdapter mFeedItemsAdapter = null;
 
     private static final String LOG_TAG = FeedItemsFragment.class.getSimpleName();
+
     public FeedItemsFragment() {
 
     }
@@ -29,8 +36,19 @@ public class FeedItemsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.rss_reader_fragment, container, false);
-        new RssService.RssFeedsDownloader(getActivity()).execute("http://www.androidcentral.com/rss.xml");
+       // new RssService.RssFeedsDownloader(getActivity()).execute("http://www.androidcentral.com/rss.xml");
 
+        mFeedItemsAdapter = new SimpleCursorAdapter(
+                getActivity(),
+                R.layout.one_item_in_list,
+                null,
+                new String[] {RSSFeedContract.ItemEntry.COLUMN_TITLE},
+                new int[] {R.id.item_in_list_textview},
+                0
+        );
+
+        ListView listView = (ListView) mRootView.findViewById(R.id.listview_feeds);
+        listView.setAdapter(mFeedItemsAdapter);
 
 //        ListView listView = (ListView) mRootView.findViewById(R.id.listview_feeds);
 //        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -47,5 +65,32 @@ public class FeedItemsFragment extends Fragment {
         return mRootView;
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(FEED_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public Loader onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(
+                getActivity(),
+                RSSFeedContract.ItemEntry.CONTENT_URI,
+                new String[] {RSSFeedContract.ItemEntry._ID, RSSFeedContract.ItemEntry.COLUMN_TITLE},
+                null,
+                null,
+                null
+        );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mFeedItemsAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mFeedItemsAdapter.swapCursor(null);
+    }
 
 }

@@ -17,11 +17,13 @@ import example.com.sunreader.data.RSSFeedContract;
 
 public class FeedItemsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int FEED_LOADER = 0;
+    private static final String LOG_TAG = FeedItemsFragment.class.getSimpleName();
+
 
     private View mRootView;
     private SimpleCursorAdapter mFeedItemsAdapter = null;
+    private int feedId;
 
-    private static final String LOG_TAG = FeedItemsFragment.class.getSimpleName();
 
     public FeedItemsFragment() {
 
@@ -31,6 +33,11 @@ public class FeedItemsFragment extends Fragment implements LoaderManager.LoaderC
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        feedId = -1;
+        Bundle args = getArguments();
+        if (args != null) {
+            feedId = args.getInt(RSSFeedContract.ItemEntry.COLUMN_FEED_ID);
+        }
     }
 
     @Override
@@ -75,7 +82,7 @@ public class FeedItemsFragment extends Fragment implements LoaderManager.LoaderC
     public Loader onCreateLoader(int id, Bundle args) {
         return new CursorLoader(
                 getActivity(),
-                RSSFeedContract.ItemEntry.CONTENT_URI,
+                RSSFeedContract.ItemEntry.buildItemWithFeedId(feedId),
                 new String[] {RSSFeedContract.ItemEntry._ID, RSSFeedContract.ItemEntry.COLUMN_TITLE},
                 null,
                 null,

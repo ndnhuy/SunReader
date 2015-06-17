@@ -16,7 +16,14 @@ public class SearchResultActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.search_results_activity);
         handleIntent(getIntent());
+
+//        if (savedInstanceState == null) {
+//            getSupportFragmentManager().beginTransaction()
+//                    .add(R.id.container, new SearchResultFragment())
+//                    .commit();
+//        }
     }
 
     @Override
@@ -27,6 +34,15 @@ public class SearchResultActivity extends ActionBarActivity {
     private void handleIntent(Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
+
+            Bundle bundle = new Bundle();
+            bundle.putString(SearchResultFragment.QUERY, query);
+            SearchResultFragment searchResultFragment = new SearchResultFragment();
+            searchResultFragment.setArguments(bundle);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, searchResultFragment)
+                    .commit();
+
             Toast.makeText(this, query, Toast.LENGTH_SHORT).show();
         }
     }

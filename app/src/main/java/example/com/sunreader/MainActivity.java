@@ -20,7 +20,6 @@ import android.widget.Toast;
 
 import example.com.sunreader.controller.FeedNamesViewController;
 import example.com.sunreader.data.RSSFeedContract;
-import example.com.sunreader.data.RssService;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -127,7 +126,6 @@ public class MainActivity extends ActionBarActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Log.v(LOG_TAG, "CLICK on setting");
-            new RssService.RssFeedsDownloader(this).execute("http://www.androidauthority.com/feed/");
         }
 
         return super.onOptionsItemSelected(item);

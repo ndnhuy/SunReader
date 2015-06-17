@@ -1,30 +1,34 @@
 package example.com.sunreader.value_object;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public class RssFeed {
     String mTitle;
     String mLink;
     String mFeedUrl;
-    List<RssItem> mItems = null;
+//    List<RssItem> mItems = null;
+//
+//    public RssFeed() {
+//        mItems = new ArrayList<RssItem>();
+//    }
+//    public RssFeed(String title, String link, String feedUrl, RssItem[] items) {
+//        mItems = new ArrayList<RssItem>();
+//        mTitle = title;
+//        mLink = link;
+//        mFeedUrl = feedUrl;
+//        if (items != null) {
+//            mItems = new ArrayList<RssItem>(Arrays.asList(items));
+//        }
+//    }
 
-    public RssFeed() {
-        mItems = new ArrayList<RssItem>();
-    }
-    public RssFeed(String title, String link, String feedUrl, RssItem[] items) {
-        mItems = new ArrayList<RssItem>();
+//    public void putItem(RssItem item) {
+//        mItems.add(item);
+//    }
+
+    public RssFeed() {}
+
+    public RssFeed(String title, String link, String feedUrl) {
         mTitle = title;
         mLink = link;
         mFeedUrl = feedUrl;
-        if (items != null) {
-            mItems = new ArrayList<RssItem>(Arrays.asList(items));
-        }
-    }
-
-    public void putItem(RssItem item) {
-        mItems.add(item);
     }
 
     public void setLink(String link) {
@@ -41,10 +45,10 @@ public class RssFeed {
         return mTitle;
     }
 
-    public void setmFeedUrl(String feedUrl) {
+    public void setFeedUrl(String feedUrl) {
         mFeedUrl = feedUrl;
     }
-    public String getmFeedUrl() {
+    public String getFeedUrl() {
         return mFeedUrl;
     }
 }

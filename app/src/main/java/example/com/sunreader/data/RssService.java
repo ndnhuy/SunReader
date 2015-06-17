@@ -206,7 +206,12 @@ public class RssService {
             Toast.makeText(mContext, "Downloading...", Toast.LENGTH_SHORT).show();
         }
 
-//        @Override
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+        }
+
+        //        @Override
 //        protected void onPostExecute(RssItem[] rssItems) {
 //            ArrayList<String> feedTitles = new ArrayList<String>();
 //            for (RssItem item : rssItems) {

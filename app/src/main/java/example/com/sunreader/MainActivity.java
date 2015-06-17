@@ -2,12 +2,9 @@ package example.com.sunreader;
 
 import android.app.SearchManager;
 import android.content.Context;
-import android.database.Cursor;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -18,25 +15,29 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import example.com.sunreader.controller.FeedNamesViewController;
 import example.com.sunreader.data.RSSFeedContract;
 import example.com.sunreader.data.RssService;
 
 
-public class MainActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MainActivity extends ActionBarActivity {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final int FEED_NAME_LOADER = 1;
     ActionBarDrawerToggle mDrawerToggle;
     DrawerLayout mDrawerLayout;
     SimpleCursorAdapter mFeedNamesAdapter;
-    ArrayAdapter<String> mFeedArrayAdapter;
+    FeedNamesViewController mFeedNamesViewController;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (getIntent() != null) {
+            handleIntent(getIntent());
+        }
 
         setUpBasicUI();
 
@@ -50,9 +51,9 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
         );
         ListView listView = (ListView) findViewById(R.id.left_drawer);
         listView.setAdapter(mFeedNamesAdapter);
-        listView.setOnItemClickListener(new FeedNamesViewController(this, mFeedNamesAdapter, getSupportFragmentManager()));
-
-        getSupportLoaderManager().initLoader(FEED_NAME_LOADER, null, this);
+        mFeedNamesViewController = new FeedNamesViewController(this, mFeedNamesAdapter, getSupportFragmentManager());
+        listView.setOnItemClickListener(mFeedNamesViewController);
+        getSupportLoaderManager().initLoader(FEED_NAME_LOADER, null, mFeedNamesViewController);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -134,29 +135,20 @@ public class MainActivity extends ActionBarActivity implements LoaderManager.Loa
 
     @Override
     protected void onResume() {
-        getSupportLoaderManager().restartLoader(FEED_NAME_LOADER, null, this);
+        getSupportLoaderManager().restartLoader(FEED_NAME_LOADER, null, mFeedNamesViewController);
         super.onResume();
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(
-                this,
-                RSSFeedContract.FeedEntry.CONTENT_URI,
-                new String[]{RSSFeedContract.FeedEntry._ID, RSSFeedContract.FeedEntry.COLUMN_TITLE},
-                null,
-                null,
-                null
-        );
-    }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mFeedNamesAdapter.swapCursor(data);
+    protected void onNewIntent(Intent intent) {
+        handleIntent(intent);
     }
 
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mFeedNamesAdapter.swapCursor(null);
+    private void handleIntent(Intent intent) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            Toast.makeText(this, query, Toast.LENGTH_SHORT).show();
+        }
     }
 }

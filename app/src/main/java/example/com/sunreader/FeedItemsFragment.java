@@ -1,11 +1,7 @@
 package example.com.sunreader;
 
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,12 +12,13 @@ import example.com.sunreader.controller.ItemsViewController;
 import example.com.sunreader.data.RSSFeedContract;
 
 
-public class FeedItemsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class FeedItemsFragment extends Fragment {
     private static final int FEED_LOADER = 0;
     private static final String LOG_TAG = FeedItemsFragment.class.getSimpleName();
-
+    public static final String FEED_ID_ARG = "feed_id";
 
     private View mRootView;
+    private ItemsViewController mItemsViewController;
     private SimpleCursorAdapter mFeedItemsAdapter = null;
 
 
@@ -52,7 +49,9 @@ public class FeedItemsFragment extends Fragment implements LoaderManager.LoaderC
 
         ListView listView = (ListView) mRootView.findViewById(R.id.listview_feeds);
         listView.setAdapter(mFeedItemsAdapter);
-        listView.setOnItemClickListener(new ItemsViewController(getActivity(), mFeedItemsAdapter));
+
+        mItemsViewController = new ItemsViewController(getActivity(), mFeedItemsAdapter);
+        listView.setOnItemClickListener(mItemsViewController);
 
 //        ListView listView = (ListView) mRootView.findViewById(R.id.listview_feeds);
 //        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -71,34 +70,7 @@ public class FeedItemsFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(FEED_LOADER, null, this);
+        getLoaderManager().initLoader(FEED_LOADER, getArguments(), mItemsViewController);
         super.onActivityCreated(savedInstanceState);
-    }
-
-    @Override
-    public Loader onCreateLoader(int id, Bundle args) {
-        int feedId = -1;
-        Bundle feedIdArg = getArguments();
-        if (feedIdArg != null) {
-            feedId = feedIdArg.getInt(RSSFeedContract.ItemEntry.COLUMN_FEED_ID);
-        }
-        return new CursorLoader(
-                getActivity(),
-                RSSFeedContract.ItemEntry.buildItemWithFeedId(feedId),
-                new String[] {RSSFeedContract.ItemEntry._ID, RSSFeedContract.ItemEntry.COLUMN_TITLE},
-                null,
-                null,
-                null
-        );
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mFeedItemsAdapter.swapCursor(data);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mFeedItemsAdapter.swapCursor(null);
     }
 }

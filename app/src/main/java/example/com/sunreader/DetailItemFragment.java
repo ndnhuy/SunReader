@@ -13,7 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.webkit.WebView;
 
 import java.io.UnsupportedEncodingException;
 
@@ -83,8 +83,10 @@ public class DetailItemFragment extends Fragment implements LoaderManager.Loader
         Log.v("View", s);
 
         Spanned detail = Html.fromHtml(s);
-        TextView textView = (TextView)mRootView.findViewById(R.id.detail_item_fragment_textview);
-        textView.setText(detail);
+//        TextView textView = (TextView)mRootView.findViewById(R.id.detail_item_fragment_textview);
+//        textView.setText(detail);
+        WebView view = (WebView) mRootView.findViewById(R.id.webview);
+        view.loadData(s,"text/html", null);
     }
 
     @Override

@@ -2,7 +2,6 @@ package example.com.sunreader;
 
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.MenuItemCompat;
@@ -29,14 +28,15 @@ public class MainActivity extends ActionBarActivity {
     DrawerLayout mDrawerLayout;
     SimpleCursorAdapter mFeedNamesAdapter;
     FeedNamesViewController mFeedNamesViewController;
+    MenuItem searchMenuItem;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (getIntent() != null) {
-            handleIntent(getIntent());
-        }
+//        if (getIntent() != null) {
+//            handleIntent(getIntent());
+//        }
 
         setUpBasicUI();
 
@@ -102,9 +102,10 @@ public class MainActivity extends ActionBarActivity {
         SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 
-        MenuItem menuItem = menu.findItem(R.id.search);
+        searchMenuItem = menu.findItem(R.id.search);
+
         SearchView searchView =
-                (SearchView) MenuItemCompat.getActionView(menuItem);
+                (SearchView) MenuItemCompat.getActionView(searchMenuItem);
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(
                         getComponentName()
@@ -134,19 +135,25 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         getSupportLoaderManager().restartLoader(FEED_NAME_LOADER, null, mFeedNamesViewController);
+        Toast.makeText(this, "MainActivity resume", Toast.LENGTH_SHORT).show();
+
+        if (searchMenuItem != null)
+            MenuItemCompat.collapseActionView(searchMenuItem);
+
         super.onResume();
     }
 
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        handleIntent(intent);
-    }
+//    @Override
+//    protected void onNewIntent(Intent intent) {
+//        handleIntent(intent);
+//    }
+//
+//    private void handleIntent(Intent intent) {
+//        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+//            String query = intent.getStringExtra(SearchManager.QUERY);
+//            Toast.makeText(this, query, Toast.LENGTH_SHORT).show();
+//        }
+//    }
 
-    private void handleIntent(Intent intent) {
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            Toast.makeText(this, query, Toast.LENGTH_SHORT).show();
-        }
-    }
 }

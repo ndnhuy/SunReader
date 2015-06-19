@@ -1,6 +1,8 @@
 package example.com.sunreader.data;
 
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.net.Uri;
 import android.text.Html;
 import android.util.Log;
@@ -26,19 +28,19 @@ public class RssService {
     public static final String SEARCH_BY_KEYWORDS = "load";
     public static final String SEARCH_BY_LINK = "url";
 
-    public static RssFeed getFeedFromJSONInSearchByLink(String JsonRssString) throws JSONException {
-        JSONObject RssJSON = new JSONObject(JsonRssString);
-        JSONObject responseDataJSON = RssJSON.getJSONObject("responseData");
-        JSONObject feedJSON = responseDataJSON.getJSONObject("feed");
-
-        RssFeed rssFeed = new RssFeed(
-                feedJSON.getString(RSSFeedContract.FeedEntry.COLUMN_TITLE),
-                feedJSON.getString(RSSFeedContract.FeedEntry.COLUMN_LINK),
-                feedJSON.getString(RSSFeedContract.FeedEntry.COLUMN_FEED_URL)
-        );
-
-        return rssFeed;
-    }
+//    public static RssFeed getFeedFromJSONInSearchByLink(String JsonRssString) throws JSONException {
+//        JSONObject RssJSON = new JSONObject(JsonRssString);
+//        JSONObject responseDataJSON = RssJSON.getJSONObject("responseData");
+//        JSONObject feedJSON = responseDataJSON.getJSONObject("feed");
+//
+//        RssFeed rssFeed = new RssFeed(
+//                feedJSON.getString(RSSFeedContract.FeedEntry.COLUMN_TITLE),
+//                feedJSON.getString(RSSFeedContract.FeedEntry.COLUMN_LINK),
+//                feedJSON.getString(RSSFeedContract.FeedEntry.COLUMN_FEED_URL)
+//        );
+//
+//        return rssFeed;
+//    }
 
     public static RssFeed[] getFeedFromJSONInSearchByKeyword(String JsonRssString) throws JSONException {
         JSONObject RssJSON = new JSONObject(JsonRssString);
@@ -132,6 +134,55 @@ public class RssService {
 
         return builder;
     }
+
+        public static void insertItemIntoDatabase(Context context, String JSONRssString, long feedRowId) throws JSONException {
+            JSONObject RssJSON = new JSONObject(JSONRssString);
+            JSONObject responseDataJSON = RssJSON.getJSONObject("responseData");
+            JSONObject feedJSON = responseDataJSON.getJSONObject("feed");
+            JSONArray entriesJSON = feedJSON.getJSONArray("entries");
+
+            for (int i = 0; i < entriesJSON.length(); i++) {
+                JSONObject itemJSON = entriesJSON.getJSONObject(i);
+
+                ContentValues itemValues = new ContentValues();
+                itemValues.put(
+                        RSSFeedContract.ItemEntry.COLUMN_TITLE,
+                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_TITLE)
+                );
+                itemValues.put(
+                        RSSFeedContract.ItemEntry.COLUMN_LINK,
+                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_LINK)
+                );
+                itemValues.put(
+                        RSSFeedContract.ItemEntry.COLUMN_AUTHOR,
+                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_AUTHOR)
+                );
+                itemValues.put(
+                        RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT,
+                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT)
+                );
+                itemValues.put(
+                        RSSFeedContract.ItemEntry.COLUMN_CONTENT_SNIPPET,
+                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_CONTENT_SNIPPET)
+                );
+                itemValues.put(
+                        RSSFeedContract.ItemEntry.COLUMN_CONTENT,
+                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_CONTENT)
+                );
+                itemValues.put(
+                        RSSFeedContract.ItemEntry.COLUMN_FEED_ID,
+                        feedRowId
+                );
+
+                Log.v(LOG_TAG, itemValues.getAsString(RSSFeedContract.ItemEntry.COLUMN_TITLE) + " " + itemValues.getAsString(RSSFeedContract.ItemEntry.COLUMN_LINK));
+
+                context.getContentResolver().insert(
+                        RSSFeedContract.ItemEntry.CONTENT_URI,
+                        itemValues
+                );
+            }
+    }
+
 
 //    public static class RssFeedsDownloader extends AsyncTask<String, String, Void> {
 //        private Context mContext;

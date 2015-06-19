@@ -9,10 +9,13 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.io.UnsupportedEncodingException;
 
 import example.com.sunreader.data.RSSFeedContract;
 
@@ -68,7 +71,18 @@ public class DetailItemFragment extends Fragment implements LoaderManager.Loader
 
 
         String rawDetail = data.getString(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_CONTENT));
-        Spanned detail = Html.fromHtml(rawDetail);
+        byte[] bytes = null;
+        String s = "";
+        try {
+            bytes = rawDetail.getBytes("UTF-8");
+            s = new String(bytes, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        Log.v("View", s);
+
+        Spanned detail = Html.fromHtml(s);
         TextView textView = (TextView)mRootView.findViewById(R.id.detail_item_fragment_textview);
         textView.setText(detail);
     }

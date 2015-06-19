@@ -27,6 +27,12 @@ public class SearchResultActivity extends ActionBarActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        Toast.makeText(this, "SearchResultActivity resume", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     protected void onNewIntent(Intent intent) {
         handleIntent(intent);
     }

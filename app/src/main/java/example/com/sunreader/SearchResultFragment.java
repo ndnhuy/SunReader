@@ -1,6 +1,7 @@
 package example.com.sunreader;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import example.com.sunreader.controller.SearchResultController;
+import example.com.sunreader.data.RSSFeedContract;
 import example.com.sunreader.value_object.RssFeed;
 
 public class SearchResultFragment extends Fragment {
@@ -24,17 +27,20 @@ public class SearchResultFragment extends Fragment {
     public static final String QUERY = "query";
     private static final int FEED_LOADER = 0;
 
+    private SearchResultController mSearchResultController;
+    private ResultsAdapter resultsAdapter;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.search_results_fragment, container, false);
 
-        final ResultsAdapter resultsAdapter = new ResultsAdapter(getActivity(), new ArrayList<RssFeed>(Arrays.asList(
+        resultsAdapter = new ResultsAdapter(getActivity(), new ArrayList<RssFeed>(Arrays.asList(
                 new RssFeed[] {
                         new RssFeed("1", "11", "111"),
                         new RssFeed("2", "22", "222"),
@@ -51,9 +57,10 @@ public class SearchResultFragment extends Fragment {
                 Toast.makeText(getActivity(), rssFeed.getLink(), Toast.LENGTH_SHORT).show();
             }
         });
+
+        mSearchResultController = new SearchResultController(getActivity(), resultsAdapter);
         if (getArguments() != null) {
-            new SearchResultController(getActivity(), resultsAdapter)
-                    .execute(getArguments().getString(QUERY));
+            mSearchResultController.execute(getArguments().getString(QUERY));
         }
 
         return rootView;
@@ -84,7 +91,34 @@ public class SearchResultFragment extends Fragment {
             TextView feedNameTextView = (TextView) convertView.findViewById(R.id.feed_name_textview);
             feedNameTextView.setText(feed.getName());
 
+            ImageButton imageButton = (ImageButton) convertView.findViewById(R.id.add_imagebutton);
+
+            if (doesExistInDatabase(feed)) {
+                imageButton.setTag("added");
+                imageButton.setImageResource(R.mipmap.ic_done_grey);
+            } else {
+                final View finalConvertView = convertView;
+                imageButton.setOnClickListener(mSearchResultController.createAddButtonOnClickListener(position));
+            }
+
             return convertView;
+        }
+
+        private boolean doesExistInDatabase(RssFeed feed) {
+            Cursor cursor = getActivity().getContentResolver().query(
+                    RSSFeedContract.FeedEntry.CONTENT_URI,
+                    new String[] {RSSFeedContract.FeedEntry._ID},
+                    RSSFeedContract.FeedEntry.COLUMN_FEED_URL + " = ?",
+                    new String[] {feed.getFeedUrl()},
+                    null
+            );
+
+
+
+            if (cursor.moveToFirst())
+                return true;
+            else
+                return false;
         }
     }
 }

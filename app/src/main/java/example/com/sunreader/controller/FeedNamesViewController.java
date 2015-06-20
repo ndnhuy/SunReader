@@ -13,7 +13,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Toast;
 
 import org.json.JSONException;
 
@@ -29,6 +28,10 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
     private SimpleCursorAdapter mFeedNamesAdapter;
     private FragmentManager mFragmentManager;
 
+    private static int COLUMN_ID_INDEX = 0;
+    private static int COLUMN_TITLE_INDEX = 1;
+    private static int COLUMN_LINK_INDEX = 2;
+
     public FeedNamesViewController(Activity activity, SimpleCursorAdapter feedNamesAdapter, FragmentManager fragmentManager) {
         mActivity = activity;
         mFeedNamesAdapter = feedNamesAdapter;
@@ -36,25 +39,30 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
     }
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        Toast.makeText(mActivity.getApplicationContext(), "Click on feed name", Toast.LENGTH_SHORT).show();
-        Cursor cursor = mFeedNamesAdapter.getCursor();
 
-        // Create fragment with bundle contains ID of selected feed
-        Bundle feedIdBundle = new Bundle();
-        feedIdBundle.putInt(FeedItemsFragment.FEED_ID_ARG, cursor.getInt(0));
-
-        FeedItemsFragment feedItemsFragment = new FeedItemsFragment();
-        feedItemsFragment.setArguments(feedIdBundle);
+        // Replace the current fragment in main view with new one.
         mFragmentManager
                 .beginTransaction()
-                .replace(R.id.container, feedItemsFragment)
+                .replace(R.id.container, createFragmentContainsItemsOfSelectedFeed())
                 .commit();
 
         ((DrawerLayout) mActivity.findViewById(R.id.drawer_layout)).closeDrawers();
 
-        // Update items
-        new ItemsDownloader(cursor.getString(2), cursor.getInt(0)).execute();
+        // Update underlying contents
+        new ItemsUpdater(mFeedNamesAdapter.getCursor().getString(COLUMN_LINK_INDEX),
+                mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX)).execute();
     }
+
+    private FeedItemsFragment createFragmentContainsItemsOfSelectedFeed() {
+        // Create fragment with bundle contains ID of selected feed
+        Bundle feedIdBundle = new Bundle();
+        feedIdBundle.putInt(FeedItemsFragment.FEED_ID_ARG, mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX));
+        FeedItemsFragment feedItemsFragment = new FeedItemsFragment();
+        feedItemsFragment.setArguments(feedIdBundle);
+
+        return feedItemsFragment;
+    }
+
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -78,11 +86,11 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
         mFeedNamesAdapter.swapCursor(null);
     }
 
-    private class ItemsDownloader extends AsyncTask<Void, Void, Void> {
+    private class ItemsUpdater extends AsyncTask<Void, Void, Void> {
         private String mFeedLink;
         private long mFeedId;
 
-        public ItemsDownloader(String feedLink, long feedId) {
+        public ItemsUpdater(String feedLink, long feedId) {
             mFeedLink = feedLink;
             mFeedId = feedId;
         }

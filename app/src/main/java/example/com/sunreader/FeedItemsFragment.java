@@ -1,14 +1,22 @@
 package example.com.sunreader;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
 
+import java.io.InputStream;
+
 import example.com.sunreader.controller.ItemsViewController;
+import example.com.sunreader.data.InternalStorageHandler;
 import example.com.sunreader.data.RSSFeedContract;
 
 
@@ -21,6 +29,8 @@ public class FeedItemsFragment extends Fragment {
     private ItemsViewController mItemsViewController;
     private SimpleCursorAdapter mFeedItemsAdapter = null;
 
+    //TODO test
+    ImageView testImageView;
 
     public FeedItemsFragment() {
 
@@ -53,6 +63,10 @@ public class FeedItemsFragment extends Fragment {
         mItemsViewController = new ItemsViewController(getActivity(), mFeedItemsAdapter);
         listView.setOnItemClickListener(mItemsViewController);
 
+        //TODO test
+        testImageView = (ImageView) mRootView.findViewById(R.id.example_imageview);
+        new DownloadImage().execute("http://www.google.com/s2/favicons?domain_url=http://bbc.co.uk/");
+
         return mRootView;
     }
 
@@ -60,5 +74,41 @@ public class FeedItemsFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(FEED_LOADER, getArguments(), mItemsViewController);
         super.onActivityCreated(savedInstanceState);
+    }
+
+    //TODO test
+    // DownloadImage AsyncTask
+    private class DownloadImage extends AsyncTask<String, Void, Bitmap> {
+
+        @Override
+        protected Bitmap doInBackground(String... URL) {
+
+            String imageURL = URL[0];
+
+            Bitmap bitmap = null;
+            try {
+                // Download Image from URL
+                InputStream input = new java.net.URL(imageURL).openStream();
+                // Decode Bitmap
+                bitmap = BitmapFactory.decodeStream(input);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return bitmap;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            // Set the bitmap into ImageView
+            //TODO test save and load image in internal storage
+            InternalStorageHandler handler = new InternalStorageHandler(getActivity());
+            String dirPath = handler.saveImage(result, "1.jpg");
+
+            Log.v(LOG_TAG, "Dir path: " + dirPath);
+
+            Bitmap loadedBmp = handler.loadImageFromStorage(dirPath, "1.jpg");
+            testImageView.setImageBitmap(loadedBmp);
+
+        }
     }
 }

@@ -33,12 +33,20 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
 
     private static int COLUMN_ID_INDEX = 0;
     private static int COLUMN_TITLE_INDEX = 1;
-    private static int COLUMN_LINK_INDEX = 2;
+    private static int COLUMN_FEEDURL_INDEX = 2;
+    private static int COLUMN_LINK_INDEX = 3;
 
     public FeedNamesViewController(Activity activity, SimpleCursorAdapter feedNamesAdapter, FragmentManager fragmentManager) {
         mActivity = activity;
         mFeedNamesAdapter = feedNamesAdapter;
         mFragmentManager = fragmentManager;
+
+        mFeedNamesAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+            @Override
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+                return false;
+            }
+        });
     }
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -52,7 +60,7 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
         ((DrawerLayout) mActivity.findViewById(R.id.drawer_layout)).closeDrawers();
 
         // Update underlying contents
-        new ItemsUpdater(mFeedNamesAdapter.getCursor().getString(COLUMN_LINK_INDEX),
+        new ItemsUpdater(mFeedNamesAdapter.getCursor().getString(COLUMN_FEEDURL_INDEX),
                 mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX)).execute();
 
         SharedPreferences sharedPref = mActivity.getSharedPreferences(
@@ -89,7 +97,10 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
         return new CursorLoader(
                 mActivity,
                 RSSFeedContract.FeedEntry.CONTENT_URI,
-                new String[]{RSSFeedContract.FeedEntry._ID, RSSFeedContract.FeedEntry.COLUMN_TITLE, RSSFeedContract.FeedEntry.COLUMN_FEED_URL},
+                new String[]{RSSFeedContract.FeedEntry._ID,
+                        RSSFeedContract.FeedEntry.COLUMN_TITLE,
+                        RSSFeedContract.FeedEntry.COLUMN_FEED_URL,
+                        RSSFeedContract.FeedEntry.COLUMN_LINK},
                 null,
                 null,
                 null

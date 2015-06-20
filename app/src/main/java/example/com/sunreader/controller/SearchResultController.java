@@ -26,6 +26,7 @@ public class SearchResultController extends AsyncTask<String, Void, RssFeed[]> {
     public SearchResultController(Context context, ArrayAdapter<RssFeed> feedsAdapter) {
         mContext = context;
         mFeedsAdapter = feedsAdapter;
+
     }
 
     @Override

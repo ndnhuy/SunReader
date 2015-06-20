@@ -1,14 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="20dp"
     android:descendantFocusability="blocksDescendants">
-    <TextView
-        android:id="@+id/feed_name_textview"
+
+    <ImageView
+        android:id="@+id/icon_imageview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/abc_text_size_medium_material"/>
-    
+        android:src="@mipmap/ic_launcher"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:id="@+id/feed_name_textview"
+        android:layout_width="600dp"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/abc_text_size_headline_material"
+        android:layout_toRightOf="@id/icon_imageview"
+        android:textStyle="bold"
+        android:singleLine="true"
+        android:ellipsize="end"/>
+
+
     <ImageButton
         android:id="@+id/add_imagebutton"
         android:layout_width="wrap_content"

@@ -10,15 +10,16 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import example.com.sunreader.controller.SearchResultController;
+import example.com.sunreader.data.ImageHandler;
 import example.com.sunreader.data.RSSFeedContract;
 import example.com.sunreader.value_object.RssFeed;
 
@@ -40,13 +41,7 @@ public class SearchResultFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.search_results_fragment, container, false);
 
-        resultsAdapter = new ResultsAdapter(getActivity(), new ArrayList<RssFeed>(Arrays.asList(
-                new RssFeed[] {
-                        new RssFeed("1", "11", "111"),
-                        new RssFeed("2", "22", "222"),
-                        new RssFeed("3", "33", "333"),
-                }
-        )));
+        resultsAdapter = new ResultsAdapter(getActivity(), new ArrayList<RssFeed>());
 
         ListView listView = (ListView) rootView.findViewById(R.id.results_listview);
         listView.setAdapter(resultsAdapter);
@@ -88,11 +83,17 @@ public class SearchResultFragment extends Fragment {
 
             }
 
+            // Setup icon
+            ImageView imgView = (ImageView) convertView.findViewById(R.id.icon_imageview);
+            String baseUrl = "http://www.google.com/s2/favicons?domain=";
+            new ImageHandler().displayImage(baseUrl + feed.getLink(), imgView);
+
+//            Log.v("SearchResultFragment", baseUrl + feed.getLink());
+
             TextView feedNameTextView = (TextView) convertView.findViewById(R.id.feed_name_textview);
             feedNameTextView.setText(feed.getName());
 
             ImageButton imageButton = (ImageButton) convertView.findViewById(R.id.add_imagebutton);
-
             if (doesExistInDatabase(feed)) {
                 imageButton.setTag("added");
                 imageButton.setImageResource(R.mipmap.ic_done_grey);

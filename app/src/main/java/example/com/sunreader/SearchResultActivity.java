@@ -10,7 +10,6 @@ import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 public class SearchResultActivity extends ActionBarActivity {
     @Override
@@ -33,7 +32,6 @@ public class SearchResultActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Toast.makeText(this, "SearchResultActivity resume", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -52,8 +50,6 @@ public class SearchResultActivity extends ActionBarActivity {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, searchResultFragment)
                     .commit();
-
-            Toast.makeText(this, query, Toast.LENGTH_SHORT).show();
         }
     }
 

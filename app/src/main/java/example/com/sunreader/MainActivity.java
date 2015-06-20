@@ -15,7 +15,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import example.com.sunreader.controller.FeedNamesViewController;
 import example.com.sunreader.data.RSSFeedContract;
@@ -25,18 +24,20 @@ public class MainActivity extends ActionBarActivity {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final int FEED_NAME_LOADER = 1;
 
-
-
     ActionBarDrawerToggle mDrawerToggle;
     DrawerLayout mDrawerLayout;
     SimpleCursorAdapter mFeedNamesAdapter;
     FeedNamesViewController mFeedNamesViewController;
     MenuItem searchMenuItem;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
 
         setUpBasicUI();
 
@@ -63,6 +64,7 @@ public class MainActivity extends ActionBarActivity {
                     .commit();
         }
     }
+
 
     private void setUpBasicUI() {
 
@@ -138,7 +140,6 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         getSupportLoaderManager().restartLoader(FEED_NAME_LOADER, null, mFeedNamesViewController);
-        Toast.makeText(this, "MainActivity resume", Toast.LENGTH_SHORT).show();
 
         if (searchMenuItem != null)
             MenuItemCompat.collapseActionView(searchMenuItem);
@@ -147,16 +148,5 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
-//    @Override
-//    protected void onNewIntent(Intent intent) {
-//        handleIntent(intent);
-//    }
-//
-//    private void handleIntent(Intent intent) {
-//        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-//            String query = intent.getStringExtra(SearchManager.QUERY);
-//            Toast.makeText(this, query, Toast.LENGTH_SHORT).show();
-//        }
-//    }
 
 }

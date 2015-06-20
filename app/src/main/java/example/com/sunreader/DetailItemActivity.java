@@ -11,6 +11,9 @@ public class DetailItemActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.detail_item_activity);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
         // Get Feed title from Intent
         Intent intent = getIntent();
         int itemId = intent.getIntExtra(ITEM_ID, -1);

@@ -24,19 +24,19 @@ import example.com.sunreader.data.RSSFeedContract;
 public class MainActivity extends ActionBarActivity {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final int FEED_NAME_LOADER = 1;
+
+
+
     ActionBarDrawerToggle mDrawerToggle;
     DrawerLayout mDrawerLayout;
     SimpleCursorAdapter mFeedNamesAdapter;
     FeedNamesViewController mFeedNamesViewController;
     MenuItem searchMenuItem;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-//        if (getIntent() != null) {
-//            handleIntent(getIntent());
-//        }
 
         setUpBasicUI();
 
@@ -55,8 +55,11 @@ public class MainActivity extends ActionBarActivity {
         getSupportLoaderManager().initLoader(FEED_NAME_LOADER, null, mFeedNamesViewController);
 
         if (savedInstanceState == null) {
+            FeedItemsFragment feedItemsFragment = new FeedItemsFragment();
+            Bundle bundle = new Bundle();
+            bundle.putInt(FeedItemsFragment.FEED_ID_ARG, -1);
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new FeedItemsFragment())
+                    .add(R.id.container, feedItemsFragment)
                     .commit();
         }
     }

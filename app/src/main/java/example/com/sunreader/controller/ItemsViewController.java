@@ -39,14 +39,28 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
         if (args != null) {
             feedId = args.getInt(FeedItemsFragment.FEED_ID_ARG);
         }
-        return new CursorLoader(
-                mActivity,
-                RSSFeedContract.ItemEntry.buildItemWithFeedId(feedId),
-                new String[] {RSSFeedContract.ItemEntry._ID, RSSFeedContract.ItemEntry.COLUMN_TITLE},
-                null,
-                null,
-                null
-        );
+        if (feedId != -1) {
+            return new CursorLoader(
+                    mActivity,
+                    RSSFeedContract.ItemEntry.buildItemWithFeedId(feedId),
+                    new String[] {RSSFeedContract.ItemEntry._ID, RSSFeedContract.ItemEntry.COLUMN_TITLE},
+                    null,
+                    null,
+                    RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT + " DESC"
+            );
+        }
+        else {
+            // Load all items
+            return new CursorLoader(
+                    mActivity,
+                    RSSFeedContract.ItemEntry.CONTENT_URI,
+                    new String[] {RSSFeedContract.ItemEntry._ID, RSSFeedContract.ItemEntry.COLUMN_TITLE},
+                    null,
+                    null,
+                    RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT + " DESC"
+            );
+        }
+
     }
 
     @Override

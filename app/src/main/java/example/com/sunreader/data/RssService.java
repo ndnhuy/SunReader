@@ -18,7 +18,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import example.com.sunreader.value_object.RssFeed;
@@ -157,10 +160,21 @@ public class RssService {
                         RSSFeedContract.ItemEntry.COLUMN_AUTHOR,
                         itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_AUTHOR)
                 );
-                itemValues.put(
-                        RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT,
-                        itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT)
-                );
+
+
+                //TODO reformat date
+                try {
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
+                    Date date = simpleDateFormat.parse(itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT));
+                    itemValues.put(
+                            RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT,
+                            date.getTime()
+                    );
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+
                 itemValues.put(
                         RSSFeedContract.ItemEntry.COLUMN_CONTENT_SNIPPET,
                         itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_CONTENT_SNIPPET)
@@ -173,8 +187,6 @@ public class RssService {
                         RSSFeedContract.ItemEntry.COLUMN_FEED_ID,
                         feedRowId
                 );
-
-                Log.v(LOG_TAG, itemValues.getAsString(RSSFeedContract.ItemEntry.COLUMN_TITLE) + " " + itemValues.getAsString(RSSFeedContract.ItemEntry.COLUMN_LINK));
 
                 context.getContentResolver().insert(
                         RSSFeedContract.ItemEntry.CONTENT_URI,

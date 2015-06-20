@@ -2,6 +2,8 @@ package example.com.sunreader.controller;
 
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,6 +15,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 
@@ -51,6 +54,23 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
         // Update underlying contents
         new ItemsUpdater(mFeedNamesAdapter.getCursor().getString(COLUMN_LINK_INDEX),
                 mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX)).execute();
+
+        SharedPreferences sharedPref = mActivity.getSharedPreferences(
+                                            mActivity.getString(R.string.reference_file_key),
+                                            Context.MODE_PRIVATE);
+
+        //TODO Save feed id to shared reference file
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(FeedItemsFragment.FEED_ID_ARG, mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX));
+        editor.commit();
+        Toast.makeText(mActivity, "Save feed id to shared reference file", Toast.LENGTH_SHORT).show();
+
+//        //TODO get feedid from shared reference file
+//        SharedPreferences sharedFile = mActivity.getSharedPreferences(
+//                mActivity.getString(R.string.reference_file_key),
+//                Context.MODE_PRIVATE);
+//        int feedId = sharedFile.getInt(FeedItemsFragment.FEED_ID_ARG, -1);
+//        Toast.makeText(mActivity, "Feed ID: " + feedId, Toast.LENGTH_SHORT).show();
     }
 
     private FeedItemsFragment createFragmentContainsItemsOfSelectedFeed() {

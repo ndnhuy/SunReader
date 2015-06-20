@@ -53,18 +53,6 @@ public class FeedItemsFragment extends Fragment {
         mItemsViewController = new ItemsViewController(getActivity(), mFeedItemsAdapter);
         listView.setOnItemClickListener(mItemsViewController);
 
-//        ListView listView = (ListView) mRootView.findViewById(R.id.listview_feeds);
-//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-//                String feedTitle = (String) adapterView.getItemAtPosition(position);
-//                // Call detail item activity
-//                Intent intent = new Intent(getActivity(), DetailItemActivity.class);
-//                intent.putExtra(DetailItemActivity.MY_INTENT_MESSAGE, feedTitle);
-//                getActivity().startActivity(intent);
-//            }
-//        });
-
         return mRootView;
     }
 

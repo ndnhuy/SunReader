@@ -2,6 +2,7 @@ package example.com.sunreader;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.MenuItemCompat;
@@ -14,9 +15,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import example.com.sunreader.controller.FeedNamesViewController;
+import example.com.sunreader.data.ImageHandler;
 import example.com.sunreader.data.RSSFeedContract;
 
 
@@ -37,8 +42,6 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
         setUpBasicUI();
 
         // Set up loader for side bar
@@ -49,11 +52,46 @@ public class MainActivity extends ActionBarActivity {
                 new String[] {RSSFeedContract.FeedEntry.COLUMN_TITLE},
                 new int[] {R.id.feed_name_textview}
         );
+
         ListView listView = (ListView) findViewById(R.id.left_drawer);
         listView.setAdapter(mFeedNamesAdapter);
+
         mFeedNamesViewController = new FeedNamesViewController(this, mFeedNamesAdapter, getSupportFragmentManager());
         listView.setOnItemClickListener(mFeedNamesViewController);
+
+        // Set onViewBinding
+        mFeedNamesAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+            @Override
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+                switch (columnIndex) {
+                    case FeedNamesViewController.COLUMN_TITLE_INDEX: {
+                        ((TextView) view).setText(cursor.getString(FeedNamesViewController.COLUMN_TITLE_INDEX));
+                        break;
+                    }
+                }
+
+                // Load icon from internal storagee
+                Log.v("TEST", "LINK " + cursor.getString(FeedNamesViewController.COLUMN_ID_INDEX));
+                ViewGroup viewGroup = (ViewGroup) view.getParent();
+                ImageView imgView = (ImageView) viewGroup.findViewById(R.id.feed_icon_imageview);
+                if (imgView != null) {
+                    new ImageHandler(getApplicationContext()).displayIconOfFeed
+                            (
+                                    cursor.getString(FeedNamesViewController.COLUMN_ID_INDEX) + ".jpg",
+                                    imgView
+                                    );
+
+                }
+                else {
+                    Log.e(LOG_TAG, "ImageView is null");
+                }
+
+                return false;
+            }
+        });
+
         getSupportLoaderManager().initLoader(FEED_NAME_LOADER, null, mFeedNamesViewController);
+
 
         if (savedInstanceState == null) {
             FeedItemsFragment feedItemsFragment = new FeedItemsFragment();

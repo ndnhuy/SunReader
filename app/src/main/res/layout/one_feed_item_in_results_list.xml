@@ -11,15 +11,17 @@
         android:layout_height="wrap_content"
         android:src="@mipmap/ic_launcher"
         android:layout_marginRight="30dp"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="10dp"
+        android:adjustViewBounds="true"/>
 
     <TextView
         android:id="@+id/feed_name_textview"
-        android:layout_width="600dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/abc_text_size_headline_material"
+        android:textSize="@dimen/abc_text_size_title_material"
         android:layout_toRightOf="@id/icon_imageview"
         android:textStyle="bold"
+        android:maxEms="10"
         android:singleLine="true"
         android:ellipsize="end"/>
 

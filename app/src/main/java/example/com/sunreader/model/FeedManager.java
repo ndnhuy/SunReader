@@ -9,6 +9,7 @@ public class FeedManager {
     private List<RssFeed> mFeeds;
 
     public RssItem[] getItemsTitle(String feedName) {
+        
         return null;
     }
 }

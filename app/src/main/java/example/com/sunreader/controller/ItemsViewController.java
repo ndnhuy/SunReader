@@ -14,6 +14,8 @@ import android.widget.Toast;
 
 import example.com.sunreader.DetailItemActivity;
 import example.com.sunreader.FeedItemsFragment;
+import example.com.sunreader.data.ImageHandler;
+import example.com.sunreader.data.InternalStorageHandler;
 import example.com.sunreader.data.RSSFeedContract;
 
 public class ItemsViewController implements AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
@@ -31,6 +33,11 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
             .putExtra(DetailItemActivity.ITEM_ID,
                     mFeedItemsAdapter.getCursor().getInt(0));
             mActivity.startActivity(intent);
+
+        //TODO TEST
+        new ImageHandler(mActivity).saveImage("http://www.google.com/s2/favicons?domain=http://www.androidcentral.com",
+                InternalStorageHandler.FEED_ICON_DIRECTORY_NAME,
+                "1.jpg");
     }
 
     @Override

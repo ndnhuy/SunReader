@@ -85,8 +85,7 @@ public class SearchResultFragment extends Fragment {
 
             // Setup icon
             ImageView imgView = (ImageView) convertView.findViewById(R.id.icon_imageview);
-            String baseUrl = "http://www.google.com/s2/favicons?domain=";
-            new ImageHandler().displayImage(baseUrl + feed.getLink(), imgView);
+            new ImageHandler(getActivity()).displayImage(feed.getLink(), imgView);
 
 //            Log.v("SearchResultFragment", baseUrl + feed.getLink());
 

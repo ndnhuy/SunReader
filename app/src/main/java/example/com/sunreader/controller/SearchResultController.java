@@ -1,7 +1,9 @@
 package example.com.sunreader.controller;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -13,6 +15,8 @@ import org.json.JSONException;
 import java.io.IOException;
 
 import example.com.sunreader.R;
+import example.com.sunreader.data.ImageHandler;
+import example.com.sunreader.data.InternalStorageHandler;
 import example.com.sunreader.data.RSSFeedContract;
 import example.com.sunreader.data.RssService;
 import example.com.sunreader.value_object.RssFeed;
@@ -88,10 +92,15 @@ public class SearchResultController extends AsyncTask<String, Void, RssFeed[]> {
             feedValues.put(RSSFeedContract.FeedEntry.COLUMN_LINK, feed.getLink());
             feedValues.put(RSSFeedContract.FeedEntry.COLUMN_FEED_URL, feed.getFeedUrl());
 
-            mContext.getContentResolver().insert(
+            Uri uri = mContext.getContentResolver().insert(
                     RSSFeedContract.FeedEntry.CONTENT_URI,
                     feedValues
             );
+
+            // Download icon and save it to internal storage
+            new ImageHandler(mContext).saveImage(feed.getLink(),
+                    InternalStorageHandler.FEED_ICON_DIRECTORY_NAME,
+                    Long.toString(ContentUris.parseId(uri)) + ".jpg");
         }
     }
 

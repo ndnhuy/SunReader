@@ -31,10 +31,10 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
     private SimpleCursorAdapter mFeedNamesAdapter;
     private FragmentManager mFragmentManager;
 
-    private static int COLUMN_ID_INDEX = 0;
-    private static int COLUMN_TITLE_INDEX = 1;
-    private static int COLUMN_FEEDURL_INDEX = 2;
-    private static int COLUMN_LINK_INDEX = 3;
+    public static final int COLUMN_ID_INDEX = 0;
+    public static final int COLUMN_TITLE_INDEX = 1;
+    public static final int COLUMN_FEEDURL_INDEX = 2;
+    public static final int COLUMN_LINK_INDEX = 3;
 
     public FeedNamesViewController(Activity activity, SimpleCursorAdapter feedNamesAdapter, FragmentManager fragmentManager) {
         mActivity = activity;
@@ -50,7 +50,6 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
     }
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
         // Replace the current fragment in main view with new one.
         mFragmentManager
                 .beginTransaction()
@@ -64,8 +63,8 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
                 mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX)).execute();
 
         SharedPreferences sharedPref = mActivity.getSharedPreferences(
-                                            mActivity.getString(R.string.reference_file_key),
-                                            Context.MODE_PRIVATE);
+                mActivity.getString(R.string.reference_file_key),
+                Context.MODE_PRIVATE);
 
         //TODO Save feed id to shared reference file
         SharedPreferences.Editor editor = sharedPref.edit();

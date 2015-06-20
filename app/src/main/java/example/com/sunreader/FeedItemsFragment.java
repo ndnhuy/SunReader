@@ -102,11 +102,11 @@ public class FeedItemsFragment extends Fragment {
             // Set the bitmap into ImageView
             //TODO test save and load image in internal storage
             InternalStorageHandler handler = new InternalStorageHandler(getActivity());
-            String dirPath = handler.saveImage(result, "1.jpg");
+            String dirPath = new InternalStorageHandler(getActivity()).saveImage(result, InternalStorageHandler.FEED_ICON_DIRECTORY_NAME, "2.jpg");
 
             Log.v(LOG_TAG, "Dir path: " + dirPath);
 
-            Bitmap loadedBmp = handler.loadImageFromStorage(dirPath, "1.jpg");
+            Bitmap loadedBmp = handler.loadImageFromStorage(InternalStorageHandler.FEED_ICON_DIRECTORY_NAME, "2.jpg");
             testImageView.setImageBitmap(loadedBmp);
 
         }

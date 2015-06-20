@@ -85,7 +85,8 @@ public class SearchResultFragment extends Fragment {
 
             // Setup icon
             ImageView imgView = (ImageView) convertView.findViewById(R.id.icon_imageview);
-            new ImageHandler(getActivity()).displayImage(feed.getLink(), imgView);
+
+            new ImageHandler(getActivity()).displayImage(ImageHandler.BASE_FAVICON_URL + feed.getLink(), imgView);
 
 //            Log.v("SearchResultFragment", baseUrl + feed.getLink());
 

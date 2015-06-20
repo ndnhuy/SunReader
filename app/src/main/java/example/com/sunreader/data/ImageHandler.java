@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import java.io.InputStream;
 
 public class ImageHandler {
-    private final String BASE_URL = "http://www.google.com/s2/favicons?domain=";
+    public static final String BASE_FAVICON_URL = "http://www.google.com/s2/favicons?domain=";
 
     Bitmap mBitmap = null;
     Context mContext;
@@ -50,7 +50,7 @@ public class ImageHandler {
             Bitmap bitmap = null;
             try {
                 // Download Image from URL
-                InputStream input = new java.net.URL(BASE_URL + mUrl).openStream();
+                InputStream input = new java.net.URL(mUrl).openStream();
                 // Decode Bitmap
                 bitmap = BitmapFactory.decodeStream(input);
             } catch (Exception e) {
@@ -80,7 +80,7 @@ public class ImageHandler {
             Bitmap bitmap = null;
             try {
                 // Download Image from URL
-                InputStream input = new java.net.URL(BASE_URL + mUrl).openStream();
+                InputStream input = new java.net.URL(mUrl).openStream();
                 // Decode Bitmap
                 bitmap = BitmapFactory.decodeStream(input);
             } catch (Exception e) {

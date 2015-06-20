@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ListView;
 
 import java.io.InputStream;
@@ -29,8 +28,6 @@ public class FeedItemsFragment extends Fragment {
     private ItemsViewController mItemsViewController;
     private SimpleCursorAdapter mFeedItemsAdapter = null;
 
-    //TODO test
-    ImageView testImageView;
 
     public FeedItemsFragment() {
 
@@ -52,20 +49,20 @@ public class FeedItemsFragment extends Fragment {
                 getActivity(),
                 R.layout.one_item_in_list,
                 null,
-                new String[] {RSSFeedContract.ItemEntry.COLUMN_TITLE},
-                new int[] {R.id.item_in_list_textview},
+                new String[] {RSSFeedContract.ItemEntry.COLUMN_TITLE, RSSFeedContract.ItemEntry.COLUMN_CONTENT_SNIPPET},
+                new int[] {R.id.title_item_in_list_textview, R.id.contentsnippet_item_in_list_textview},
                 0
         );
 
         ListView listView = (ListView) mRootView.findViewById(R.id.listview_feeds);
         listView.setAdapter(mFeedItemsAdapter);
 
+
         mItemsViewController = new ItemsViewController(getActivity(), mFeedItemsAdapter);
         listView.setOnItemClickListener(mItemsViewController);
 
-        //TODO test
-        testImageView = (ImageView) mRootView.findViewById(R.id.example_imageview);
-        new DownloadImage().execute("http://www.google.com/s2/favicons?domain_url=http://bbc.co.uk/");
+        mFeedItemsAdapter.setViewBinder(mItemsViewController.createItemsViewBinder());
+
 
         return mRootView;
     }
@@ -107,7 +104,6 @@ public class FeedItemsFragment extends Fragment {
             Log.v(LOG_TAG, "Dir path: " + dirPath);
 
             Bitmap loadedBmp = handler.loadImageFromStorage(InternalStorageHandler.FEED_ICON_DIRECTORY_NAME, "2.jpg");
-            testImageView.setImageBitmap(loadedBmp);
 
         }
     }

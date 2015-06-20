@@ -98,7 +98,7 @@ public class SearchResultController extends AsyncTask<String, Void, RssFeed[]> {
             );
 
             // Download icon and save it to internal storage
-            new ImageHandler(mContext).saveImage(feed.getLink(),
+            new ImageHandler(mContext).saveImage(ImageHandler.BASE_FAVICON_URL + feed.getLink(),
                     InternalStorageHandler.FEED_ICON_DIRECTORY_NAME,
                     Long.toString(ContentUris.parseId(uri)) + ".jpg");
         }

@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 public class InternalStorageHandler {
+    private final String LOG_TAG = InternalStorageHandler.class.getSimpleName();
     public static final String FEED_ICON_DIRECTORY_NAME = "feed_img";
     public static final String ITEM_IMAGE_DIRECTORY_NAME = "item_img";
 
@@ -23,7 +24,6 @@ public class InternalStorageHandler {
     }
 
     public String saveImage(Bitmap bitmap, String dirName, String name) {
-
         ContextWrapper cw = new ContextWrapper(mContext);
         // path to /data/data/yourapp/app_data/imageDir
         File directory = cw.getDir(dirName, Context.MODE_PRIVATE);

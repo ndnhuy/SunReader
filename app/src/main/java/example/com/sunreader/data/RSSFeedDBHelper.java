@@ -23,7 +23,7 @@ public class RSSFeedDBHelper extends SQLiteOpenHelper {
                 RSSFeedContract.FeedEntry.COLUMN_TITLE + " TEXT NOT NULL," +
                 RSSFeedContract.FeedEntry.COLUMN_LINK + " TEXT UNIQUE NOT NULL," +
                 RSSFeedContract.FeedEntry.COLUMN_FEED_URL + " TEXT UNIQUE NOT NULL, " +
-                "UNIQUE (" + RSSFeedContract.FeedEntry.COLUMN_LINK + ") ON CONFLICT REPLACE" +
+                "UNIQUE (" + RSSFeedContract.FeedEntry.COLUMN_LINK + ") ON CONFLICT IGNORE" +
                 " )";
         final String SQL_CREATE_ITEM_TABLE = "CREATE TABLE " + RSSFeedContract.ItemEntry.TABLE_NAME
                 + " (" +
@@ -38,7 +38,7 @@ public class RSSFeedDBHelper extends SQLiteOpenHelper {
                 " FOREIGN KEY (" + RSSFeedContract.ItemEntry.COLUMN_FEED_ID + ") REFERENCES " +
                 RSSFeedContract.FeedEntry.TABLE_NAME + " (" + RSSFeedContract.FeedEntry._ID + "), " +
 
-                " UNIQUE (" + RSSFeedContract.ItemEntry.COLUMN_LINK + ") ON CONFLICT REPLACE" +
+                " UNIQUE (" + RSSFeedContract.ItemEntry.COLUMN_LINK + ") ON CONFLICT IGNORE" +
                 ")";
 
         sqLiteDatabase.execSQL(SQL_CREATE_FEED_TABLE);

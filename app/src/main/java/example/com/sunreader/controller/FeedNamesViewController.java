@@ -2,6 +2,7 @@ package example.com.sunreader.controller;
 
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -48,6 +49,9 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
             }
         });
     }
+    public void updateUnderlyingItems(String feedUrl, int feedId) {
+        new ItemsUpdater(feedUrl, feedId).execute();
+    }
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         // Replace the current fragment in main view with new one.
@@ -59,8 +63,8 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
         ((DrawerLayout) mActivity.findViewById(R.id.drawer_layout)).closeDrawers();
 
         // Update underlying contents
-        new ItemsUpdater(mFeedNamesAdapter.getCursor().getString(COLUMN_FEEDURL_INDEX),
-                mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX)).execute();
+        updateUnderlyingItems(mFeedNamesAdapter.getCursor().getString(COLUMN_FEEDURL_INDEX),
+                mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX));
 
         SharedPreferences sharedPref = mActivity.getSharedPreferences(
                 mActivity.getString(R.string.reference_file_key),
@@ -70,7 +74,6 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putInt(FeedItemsFragment.FEED_ID_ARG, mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX));
         editor.commit();
-        Toast.makeText(mActivity, "Save feed id to shared reference file", Toast.LENGTH_SHORT).show();
 
 //        //TODO get feedid from shared reference file
 //        SharedPreferences sharedFile = mActivity.getSharedPreferences(
@@ -116,13 +119,19 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
         mFeedNamesAdapter.swapCursor(null);
     }
 
-    private class ItemsUpdater extends AsyncTask<Void, Void, Void> {
+    public class ItemsUpdater extends AsyncTask<Void, Void, Void> {
         private String mFeedLink;
         private long mFeedId;
 
+        ProgressDialog dialog = new ProgressDialog(mActivity);
         public ItemsUpdater(String feedLink, long feedId) {
             mFeedLink = feedLink;
             mFeedId = feedId;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            Toast.makeText(mActivity, "Loading...", Toast.LENGTH_SHORT);
         }
 
         @Override
@@ -132,7 +141,9 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
                 feedData = RssService.downloadFeedJSON(
                         RssService.SEARCH_BY_LINK,
                         mFeedLink).toString();
+
                 RssService.insertItemIntoDatabase(mActivity, feedData, mFeedId);
+
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
@@ -140,6 +151,11 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
             }
 
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+
         }
     }
 }

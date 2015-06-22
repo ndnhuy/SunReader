@@ -2,6 +2,7 @@ package example.com.sunreader;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -168,9 +169,32 @@ public class MainActivity extends ActionBarActivity {
 
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Log.v(LOG_TAG, "CLICK on setting");
+        switch (id) {
+            case R.id.action_settings: {
+                Log.v(LOG_TAG, "CLICK on setting");
+                break;
+            }
+            case R.id.action_refresh: {
+                // Get id from shared file
+                SharedPreferences sharedFile = this.getSharedPreferences(
+                        this.getString(R.string.reference_file_key),
+                        Context.MODE_PRIVATE
+                );
+                int feedId = sharedFile.getInt(FeedItemsFragment.FEED_ID_ARG, -1);
+
+                FeedItemsFragment feedItemsFragment = new FeedItemsFragment();
+                Bundle bundle = new Bundle();
+                bundle.putInt(FeedItemsFragment.FEED_ID_ARG, feedId);
+                feedItemsFragment.setArguments(bundle);
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, feedItemsFragment)
+                        .commit();
+
+                //Toast.makeText(this, Integer.toString(feedId), Toast.LENGTH_SHORT).show();
+                break;
+            }
         }
+
 
         return super.onOptionsItemSelected(item);
     }

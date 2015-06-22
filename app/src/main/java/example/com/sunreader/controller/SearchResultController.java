@@ -1,5 +1,6 @@
 package example.com.sunreader.controller;
 
+import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,7 +9,6 @@ import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import org.json.JSONException;
 
@@ -26,11 +26,11 @@ public class SearchResultController extends AsyncTask<String, Void, RssFeed[]> {
 
     private Context mContext;
     private ArrayAdapter<RssFeed> mFeedsAdapter;
-
+    private ProgressDialog loadingDialog;
     public SearchResultController(Context context, ArrayAdapter<RssFeed> feedsAdapter) {
         mContext = context;
         mFeedsAdapter = feedsAdapter;
-
+        loadingDialog = new ProgressDialog(mContext);
     }
 
     @Override
@@ -51,8 +51,8 @@ public class SearchResultController extends AsyncTask<String, Void, RssFeed[]> {
 
     @Override
     protected void onPreExecute() {
-        Toast.makeText(mContext, "Updating...", Toast.LENGTH_SHORT);
-        super.onPreExecute();
+        loadingDialog.setMessage("Loading...");
+        loadingDialog.show();
     }
 
     @Override
@@ -62,6 +62,8 @@ public class SearchResultController extends AsyncTask<String, Void, RssFeed[]> {
         for (int i = 0; i < rssFeeds.length; i++) {
             mFeedsAdapter.add(rssFeeds[i]);
         }
+
+        loadingDialog.dismiss();
     }
 
     public AddButtonOnClickListener createAddButtonOnClickListener(int position) {
@@ -92,6 +94,8 @@ public class SearchResultController extends AsyncTask<String, Void, RssFeed[]> {
             feedValues.put(RSSFeedContract.FeedEntry.COLUMN_LINK, feed.getLink());
             feedValues.put(RSSFeedContract.FeedEntry.COLUMN_FEED_URL, feed.getFeedUrl());
 
+
+            //TODO do data-thing in UI thread, this is so not good
             Uri uri = mContext.getContentResolver().insert(
                     RSSFeedContract.FeedEntry.CONTENT_URI,
                     feedValues

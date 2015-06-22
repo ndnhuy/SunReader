@@ -1,8 +1,10 @@
 package example.com.sunreader.data;
 
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.text.Html;
 import android.util.Log;
@@ -10,11 +12,15 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,6 +36,8 @@ public class RssService {
     private static final String LOG_TAG = RssService.class.getSimpleName();
     public static final String SEARCH_BY_KEYWORDS = "load";
     public static final String SEARCH_BY_LINK = "url";
+
+
 
 //    public static RssFeed getFeedFromJSONInSearchByLink(String JsonRssString) throws JSONException {
 //        JSONObject RssJSON = new JSONObject(JsonRssString);
@@ -84,9 +92,11 @@ public class RssService {
     public static URL buildURLBasedOnURL(String urlStr) throws MalformedURLException {
         final String RSS_BASE_URL = "https://ajax.googleapis.com/ajax/services/feed/load?v=1.0&";
         final String QUERY_PARAM = "q";
+        final String NUM_PARAM = "num";
 
         Uri builtUri = Uri.parse(RSS_BASE_URL).buildUpon()
                 .appendQueryParameter(QUERY_PARAM, urlStr)
+                .appendQueryParameter(NUM_PARAM, "-1")
                 .build();
         URL url = new URL(builtUri.toString());
         return url;
@@ -183,15 +193,57 @@ public class RssService {
                         RSSFeedContract.ItemEntry.COLUMN_CONTENT,
                         itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_CONTENT)
                 );
+
+                // Convert content to UTF-8
+                String rawContent =  itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_CONTENT);
+                byte[] bytes = null;
+                String htmlContent = "";
+                try {
+                    bytes = rawContent.getBytes("UTF-8");
+                    htmlContent = new String(bytes, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+
+                // Extract the first image from the content
+                Document doc = Jsoup.parse(htmlContent);
+                Elements elements = doc.getElementsByTag("img");
+                String srcImage = "";
+                if (elements.size() > 0)
+                    srcImage = elements.get(0).absUrl("src");
+
+
                 itemValues.put(
                         RSSFeedContract.ItemEntry.COLUMN_FEED_ID,
                         feedRowId
                 );
 
-                context.getContentResolver().insert(
+                // Check if exist
+                Cursor itemsCursor = context.getContentResolver().query(
                         RSSFeedContract.ItemEntry.CONTENT_URI,
-                        itemValues
+                        new String[] {RSSFeedContract.ItemEntry.COLUMN_FEED_ID},
+                        RSSFeedContract.ItemEntry.COLUMN_LINK + " = ?",
+                        new String[] {itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_LINK)},
+                        null
                 );
+                if (!itemsCursor.moveToFirst()) {
+                    // This item did not already exist
+                    // Insert
+                    Uri uri = context.getContentResolver().insert(
+                            RSSFeedContract.ItemEntry.CONTENT_URI,
+                            itemValues
+                    );
+
+                    long itemId = ContentUris.parseId(uri);
+                    // Download image based on url and save to file
+                    new ImageHandler(context).saveImage(
+                            srcImage,
+                            InternalStorageHandler.ITEM_IMAGE_DIRECTORY_NAME,
+                            itemId + ".jpg"
+                    );
+                }
+
+
             }
     }
 

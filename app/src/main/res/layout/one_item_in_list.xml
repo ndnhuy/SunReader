@@ -1,15 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:minHeight="?android:attr/listPreferredItemHeight"
-    android:padding="16dp">
-    <TextView
-        android:layout_width="match_parent"
+    android:gravity="center_vertical">
+    <ImageView
+        android:id="@+id/item_imageview"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:minHeight="?android:attr/listPreferredItemHeight"
-        android:gravity="center_vertical"
-        android:id="@+id/item_in_list_textview"/>
+        android:src="@mipmap/ic_launcher"
+        android:padding="20dp"
+        android:layout_weight="1" />
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="3">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:id="@+id/title_item_in_list_textview"
+            android:textStyle="bold"
+            android:textSize="@dimen/abc_text_size_medium_material"
+            android:textColor="@color/black"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:id="@+id/contentsnippet_item_in_list_textview"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
 </LinearLayout>

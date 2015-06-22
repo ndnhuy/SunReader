@@ -5,11 +5,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.ImageView;
 
 import java.io.InputStream;
 
 public class ImageHandler {
+    private final String LOG_TAG = ImageHandler.class.getSimpleName();
     public static final String BASE_FAVICON_URL = "http://www.google.com/s2/favicons?domain=";
 
     Bitmap mBitmap = null;
@@ -32,6 +34,14 @@ public class ImageHandler {
     public void displayImage(String url, ImageView imgView) {
         new ImageDownloadAndBindToView(url, imgView).execute();
     }
+
+
+    public void loadingImageFromFileAndBindToView(String dirName, String fileName, ImageView imgView) {
+        new LoadingImageFromFileAndBindToView(dirName, fileName, imgView).execute();
+    }
+
+
+
 
     public class ImageDownloadAndSaveToStorage extends AsyncTask<Void, Void, Bitmap> {
         String mUrl;
@@ -61,7 +71,8 @@ public class ImageHandler {
 
         @Override
         protected void onPostExecute(Bitmap result) {
-            new InternalStorageHandler(mContext).saveImage(result, mDirName, mFileName);
+            if (result != null)
+                new InternalStorageHandler(mContext).saveImage(result, mDirName, mFileName);
         }
     }
 
@@ -93,6 +104,40 @@ public class ImageHandler {
         protected void onPostExecute(Bitmap result) {
             if (mImgView != null)
                 mImgView.setImageBitmap(result);
+        }
+    }
+
+
+    public class LoadingImageFromFileAndBindToView extends AsyncTask<Void, Void, Bitmap> {
+        private final String LOG_TAG = LoadingImageFromFileAndBindToView.class.getSimpleName();
+        String mDirName;
+        String mFileName;
+        ImageView mImgView;
+
+        public LoadingImageFromFileAndBindToView(String dirName, String fileName, ImageView imgView) {
+                mDirName = dirName;
+                mFileName = fileName;
+                mImgView = imgView;
+        }
+
+
+        @Override
+        protected Bitmap doInBackground(Void... voids) {
+            Bitmap bmp = null;
+            bmp = new InternalStorageHandler(mContext).loadImageFromStorage(
+                    mDirName,
+                    mFileName
+            );
+
+            Log.v(LOG_TAG, "Loading succuessful: " + mFileName);
+
+            return bmp;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            if (bitmap != null)
+                mImgView.setImageBitmap(bitmap);
         }
     }
 

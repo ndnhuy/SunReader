@@ -16,16 +16,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-
-import java.io.UnsupportedEncodingException;
-
 import example.com.sunreader.DetailItemActivity;
 import example.com.sunreader.FeedItemsFragment;
 import example.com.sunreader.R;
 import example.com.sunreader.data.ImageHandler;
+import example.com.sunreader.data.InternalStorageHandler;
 import example.com.sunreader.data.RSSFeedContract;
 
 public class ItemsViewController implements AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
@@ -53,6 +48,7 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
         int feedId = -1;
         if (args != null) {
             feedId = args.getInt(FeedItemsFragment.FEED_ID_ARG);
@@ -104,44 +100,22 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
 
 
         @Override
-        public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+        public boolean setViewValue(View view, final Cursor cursor, int columnIndex) {
+
+
+//            Bitmap bitmap = new InternalStorageHandler(mActivity).loadImageFromStorage(
+//                    InternalStorageHandler.ITEM_IMAGE_DIRECTORY_NAME,
+//                    cursor.getString(COLUMN_ID_INDEX) + ".jpg"
+//            );
+//            if (bitmap != null) {
+//                imgView.setImageBitmap(bitmap);
+//            }
+
             switch (columnIndex) {
                 case COLUMN_CONTENT_SNIPPET_INDEX: {
                     ((TextView) view).setText(cursor.getString(COLUMN_CONTENT_SNIPPET_INDEX));
-                    return true;
-                }
-                case COLUMN_TITLE_INDEX: {
-                    ((TextView) view).setText(cursor.getString(COLUMN_TITLE_INDEX));
-                    // Bind the image to item
-                    // Get the first image in content and bind it to imageView
-                    Cursor contentCursor = mActivity.getContentResolver().query(
-                            RSSFeedContract.ItemEntry.buildItemUri(cursor.getLong(COLUMN_ID_INDEX)),
-                            new String[]{RSSFeedContract.ItemEntry.COLUMN_CONTENT},
-                            null,
-                            null,
-                            null
-                    );
-
-                    if (!contentCursor.moveToFirst()) {
-                        Log.e(LOG_TAG, "The cursor point to content of item is null");
-                    }
-
-                    String rawContent = contentCursor.getString(0);
-                    byte[] bytes = null;
-                    String htmlContent = "";
-                    try {
-                        bytes = rawContent.getBytes("UTF-8");
-                        htmlContent = new String(bytes, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-
-                    // Extract the first image from the content
-                    Document doc = Jsoup.parse(htmlContent);
-                    Elements elements = doc.getElementsByTag("img");
-                    String srcImage = elements.get(0).absUrl("src");
-
-                    // Get image view
+                    Log.v(LOG_TAG, "SetViewValue");
+                    // Bind image to view
                     ViewGroup parentView = (ViewGroup)view.getParent();
                     LinearLayout linearLayout = (LinearLayout) parentView;
                     LinearLayout parent = (LinearLayout) linearLayout.getParent();
@@ -151,7 +125,15 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
                         return false;
                     }
 
-                    new ImageHandler(mActivity).displayImage(srcImage, imgView);
+                    new ImageHandler(mActivity).loadingImageFromFileAndBindToView(
+                            InternalStorageHandler.ITEM_IMAGE_DIRECTORY_NAME,
+                            cursor.getString(COLUMN_ID_INDEX) + ".jpg",
+                            imgView
+                    );
+                    return true;
+                }
+                case COLUMN_TITLE_INDEX: {
+                    ((TextView) view).setText(cursor.getString(COLUMN_TITLE_INDEX));
                     return true;
                 }
             }
@@ -160,5 +142,6 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
 
             return false;
         }
+
     }
 }

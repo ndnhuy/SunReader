@@ -101,8 +101,6 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
 
         @Override
         public boolean setViewValue(View view, final Cursor cursor, int columnIndex) {
-
-
 //            Bitmap bitmap = new InternalStorageHandler(mActivity).loadImageFromStorage(
 //                    InternalStorageHandler.ITEM_IMAGE_DIRECTORY_NAME,
 //                    cursor.getString(COLUMN_ID_INDEX) + ".jpg"
@@ -116,7 +114,7 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
                     ((TextView) view).setText(cursor.getString(COLUMN_CONTENT_SNIPPET_INDEX));
                     Log.v(LOG_TAG, "SetViewValue");
                     // Bind image to view
-                    ViewGroup parentView = (ViewGroup)view.getParent();
+                    ViewGroup parentView = (ViewGroup) view.getParent();
                     LinearLayout linearLayout = (LinearLayout) parentView;
                     LinearLayout parent = (LinearLayout) linearLayout.getParent();
                     ImageView imgView = (ImageView) parent.findViewById(R.id.item_imageview);
@@ -137,7 +135,6 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
                     return true;
                 }
             }
-
 
 
             return false;

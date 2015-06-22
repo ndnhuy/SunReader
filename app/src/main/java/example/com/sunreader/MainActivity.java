@@ -22,6 +22,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import example.com.sunreader.controller.FeedNamesViewController;
+import example.com.sunreader.controller.ItemsUpdater;
 import example.com.sunreader.data.ImageHandler;
 import example.com.sunreader.data.RSSFeedContract;
 
@@ -129,6 +130,8 @@ public class MainActivity extends ActionBarActivity {
             }
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+
     }
 
 
@@ -189,6 +192,24 @@ public class MainActivity extends ActionBarActivity {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container, feedItemsFragment)
                         .commit();
+
+
+                // Get feed url based on feed ID
+                Cursor cursor = this.getContentResolver().query(
+                        RSSFeedContract.FeedEntry.buildFeedUri(feedId),
+                        new String[] {RSSFeedContract.FeedEntry.COLUMN_FEED_URL},
+                        null,
+                        null,
+                        null
+                );
+
+                String feedUrl = "";
+                if (cursor.moveToFirst()) {
+                    feedUrl = cursor.getString(0);
+                }
+
+                new ItemsUpdater(this, feedUrl, feedId).execute();
+
 
                 //Toast.makeText(this, Integer.toString(feedId), Toast.LENGTH_SHORT).show();
                 break;

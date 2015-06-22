@@ -9,6 +9,9 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
+
+import example.com.sunreader.R;
 
 public class ImageHandler {
     private final String LOG_TAG = ImageHandler.class.getSimpleName();
@@ -110,14 +113,19 @@ public class ImageHandler {
 
     public class LoadingImageFromFileAndBindToView extends AsyncTask<Void, Void, Bitmap> {
         private final String LOG_TAG = LoadingImageFromFileAndBindToView.class.getSimpleName();
+
+        private final WeakReference<ImageView> imageViewRef;
+
         String mDirName;
         String mFileName;
         ImageView mImgView;
+
 
         public LoadingImageFromFileAndBindToView(String dirName, String fileName, ImageView imgView) {
                 mDirName = dirName;
                 mFileName = fileName;
                 mImgView = imgView;
+                imageViewRef = new WeakReference<ImageView>(imgView);
         }
 
 
@@ -129,15 +137,23 @@ public class ImageHandler {
                     mFileName
             );
 
-            Log.v(LOG_TAG, "Loading succuessful: " + mFileName);
+            Log.v(LOG_TAG, "Loading succuessful: " + mFileName + " for " + mImgView.hashCode());
 
             return bmp;
         }
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            if (bitmap != null)
-                mImgView.setImageBitmap(bitmap);
+            if (imageViewRef != null && bitmap != null) {
+                final ImageView imgView = imageViewRef.get();
+                if (imgView != null)
+                    imgView.setImageBitmap(bitmap);
+            }
+            else {
+                final ImageView imgView = imageViewRef.get();
+                if (imgView != null)
+                    imgView.setImageResource(R.mipmap.ic_launcher);
+            }
         }
     }
 

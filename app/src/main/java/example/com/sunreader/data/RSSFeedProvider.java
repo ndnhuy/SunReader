@@ -172,7 +172,35 @@ public class RSSFeedProvider extends ContentProvider {
     }
 
     @Override
-    public int update(Uri uri, ContentValues contentValues, String s, String[] strings) {
-        return 0;
+    public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = uriMatcher.match(uri);
+        int rowsUpdated = 0;
+        switch (match) {
+            case UriMatcherBuilder.FEED: {
+                rowsUpdated = db.update(
+                        RSSFeedContract.FeedEntry.TABLE_NAME,
+                        contentValues,
+                        selection,
+                        selectionArgs
+                );
+                break;
+            }
+            case UriMatcherBuilder.ITEM: {
+                rowsUpdated = db.update(
+                        RSSFeedContract.ItemEntry.TABLE_NAME,
+                        contentValues,
+                        selection,
+                        selectionArgs
+                );
+                break;
+            }
+        }
+
+        if (rowsUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        return rowsUpdated;
     }
 }

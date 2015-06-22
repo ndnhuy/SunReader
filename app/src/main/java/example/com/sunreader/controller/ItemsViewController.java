@@ -1,6 +1,7 @@
 package example.com.sunreader.controller;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +25,7 @@ import example.com.sunreader.data.ImageHandler;
 import example.com.sunreader.data.InternalStorageHandler;
 import example.com.sunreader.data.RSSFeedContract;
 
-public class ItemsViewController implements AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class ItemsViewController implements AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
     private final String LOG_TAG = ItemsViewController.class.getSimpleName();
 
     Activity mActivity;
@@ -40,10 +42,21 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
     }
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            Intent intent = new Intent(mActivity, DetailItemActivity.class)
-            .putExtra(DetailItemActivity.ITEM_ID,
-                    mFeedItemsAdapter.getCursor().getInt(0));
-            mActivity.startActivity(intent);
+        int itemId = mFeedItemsAdapter.getCursor().getInt(0);
+        Intent intent = new Intent(mActivity, DetailItemActivity.class)
+        .putExtra(DetailItemActivity.ITEM_ID, itemId);
+        mActivity.startActivity(intent);
+
+        ContentValues values = new ContentValues();
+        values.put(RSSFeedContract.ItemEntry.COLUMN_READ, 1);
+
+        // Mark as read
+        mActivity.getContentResolver().update(
+                RSSFeedContract.ItemEntry.CONTENT_URI,
+                values,
+                RSSFeedContract.ItemEntry._ID + " = ?",
+                new String[] {Integer.toString(itemId)}
+        );
     }
 
     @Override
@@ -96,6 +109,11 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
         return new ItemsViewBinder();
     }
 
+    @Override
+    public void onRefresh() {
+
+    }
+
     public class ItemsViewBinder implements SimpleCursorAdapter.ViewBinder {
 
 
@@ -109,9 +127,10 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
 //                imgView.setImageBitmap(bitmap);
 //            }
 
+
             switch (columnIndex) {
                 case COLUMN_CONTENT_SNIPPET_INDEX: {
-                    ((TextView) view).setText(cursor.getString(COLUMN_CONTENT_SNIPPET_INDEX));
+
                     Log.v(LOG_TAG, "SetViewValue");
                     // Bind image to view
                     ViewGroup parentView = (ViewGroup) view.getParent();
@@ -128,6 +147,9 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
                             cursor.getString(COLUMN_ID_INDEX) + ".jpg",
                             imgView
                     );
+
+                    ((TextView) view).setText(cursor.getString(COLUMN_CONTENT_SNIPPET_INDEX));
+
                     return true;
                 }
                 case COLUMN_TITLE_INDEX: {

@@ -7,8 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.text.Html;
-import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,7 +77,6 @@ public class DetailItemFragment extends Fragment implements LoaderManager.Loader
             e.printStackTrace();
         }
 
-        Spanned detail = Html.fromHtml(s);
 //        TextView textView = (TextView)mRootView.findViewById(R.id.detail_item_fragment_textview);
 //        textView.setText(detail);
         WebView view = (WebView) mRootView.findViewById(R.id.webview);

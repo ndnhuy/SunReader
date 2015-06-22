@@ -170,6 +170,10 @@ public class RssService {
                         RSSFeedContract.ItemEntry.COLUMN_AUTHOR,
                         itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_AUTHOR)
                 );
+                itemValues.put(
+                        RSSFeedContract.ItemEntry.COLUMN_READ,
+                        0
+                );
 
 
                 //TODO reformat date

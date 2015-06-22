@@ -20,6 +20,7 @@ public class RSSFeedContract {
         public static final String COLUMN_LINK = "link";
         public static final String COLUMN_FEED_URL = "feedUrl";
 
+
         public static Uri buildFeedUri(long id) {
             Uri uri = ContentUris.withAppendedId(CONTENT_URI, id);
             return uri;
@@ -37,6 +38,7 @@ public class RSSFeedContract {
         public static final String COLUMN_AUTHOR = "author";
         public static final String COLUMN_PUBLISHED_DATETEXT = "publishedDate";
         public static final String COLUMN_FEED_ID = "feed_id";
+        public static final String COLUMN_READ = "read";
 
         public static Uri buildItemUri(long id) {
             Uri uri = ContentUris.withAppendedId(CONTENT_URI, id);

@@ -1,11 +1,15 @@
 package example.com.sunreader;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +18,7 @@ import android.widget.ListView;
 
 import java.io.InputStream;
 
+import example.com.sunreader.controller.ItemsUpdater;
 import example.com.sunreader.controller.ItemsViewController;
 import example.com.sunreader.data.InternalStorageHandler;
 import example.com.sunreader.data.RSSFeedContract;
@@ -70,6 +75,51 @@ public class FeedItemsFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(FEED_LOADER, getArguments(), mItemsViewController);
+
+        // Set pull to refresh
+        final SwipeRefreshLayout swipeLayout = (SwipeRefreshLayout) getView().findViewById(R.id.swipe_container);
+
+        swipeLayout.setColorScheme(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Get id from shared file
+                SharedPreferences sharedFile = getActivity().getSharedPreferences(
+                        getActivity().getString(R.string.reference_file_key),
+                        Context.MODE_PRIVATE
+                );
+                int feedId = sharedFile.getInt(FeedItemsFragment.FEED_ID_ARG, -1);
+
+                FeedItemsFragment feedItemsFragment = new FeedItemsFragment();
+                Bundle bundle = new Bundle();
+                bundle.putInt(FeedItemsFragment.FEED_ID_ARG, feedId);
+                feedItemsFragment.setArguments(bundle);
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, feedItemsFragment)
+                        .commit();
+
+                // Get feed url based on feed ID
+                Cursor cursor = getActivity().getContentResolver().query(
+                        RSSFeedContract.FeedEntry.buildFeedUri(feedId),
+                        new String[] {RSSFeedContract.FeedEntry.COLUMN_FEED_URL},
+                        null,
+                        null,
+                        null
+                );
+
+                String feedUrl = "";
+                if (cursor.moveToFirst()) {
+                    feedUrl = cursor.getString(0);
+                }
+
+                new ItemsUpdater(getActivity(), feedUrl, feedId).execute();
+            }
+        });
+
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -107,4 +157,7 @@ public class FeedItemsFragment extends Fragment {
 
         }
     }
+
+
+
 }

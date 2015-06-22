@@ -2,11 +2,9 @@ package example.com.sunreader.controller;
 
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
@@ -16,16 +14,10 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Toast;
-
-import org.json.JSONException;
-
-import java.io.IOException;
 
 import example.com.sunreader.FeedItemsFragment;
 import example.com.sunreader.R;
 import example.com.sunreader.data.RSSFeedContract;
-import example.com.sunreader.data.RssService;
 
 public class FeedNamesViewController implements AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
     private Activity mActivity;
@@ -49,8 +41,8 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
             }
         });
     }
-    public void updateUnderlyingItems(String feedUrl, int feedId) {
-        new ItemsUpdater(feedUrl, feedId).execute();
+    private void updateUnderlyingItems(String feedUrl, int feedId) {
+        new ItemsUpdater(mActivity, feedUrl, feedId).execute();
     }
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -119,43 +111,5 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
         mFeedNamesAdapter.swapCursor(null);
     }
 
-    public class ItemsUpdater extends AsyncTask<Void, Void, Void> {
-        private String mFeedLink;
-        private long mFeedId;
 
-        ProgressDialog dialog = new ProgressDialog(mActivity);
-        public ItemsUpdater(String feedLink, long feedId) {
-            mFeedLink = feedLink;
-            mFeedId = feedId;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            Toast.makeText(mActivity, "Loading...", Toast.LENGTH_SHORT);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            String feedData = null;
-            try {
-                feedData = RssService.downloadFeedJSON(
-                        RssService.SEARCH_BY_LINK,
-                        mFeedLink).toString();
-
-                RssService.insertItemIntoDatabase(mActivity, feedData, mFeedId);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-
-        }
-    }
 }

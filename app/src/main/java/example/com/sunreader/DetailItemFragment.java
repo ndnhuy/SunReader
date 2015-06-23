@@ -1,13 +1,22 @@
 package example.com.sunreader;
 
 
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import example.com.sunreader.controller.DetailItemViewController;
+import example.com.sunreader.data.RSSFeedContract;
 
 public class DetailItemFragment extends Fragment {
     private String LOG_TAG = DetailItemActivity.class.getSimpleName();
@@ -22,6 +31,7 @@ public class DetailItemFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         mDetailItemViewController = new DetailItemViewController(getActivity());
     }
 
@@ -33,8 +43,50 @@ public class DetailItemFragment extends Fragment {
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        Bundle bundle = new Bundle();
         getLoaderManager().initLoader(DETAIL_ITEM_LOADER, getArguments(), mDetailItemViewController);
         super.onActivityCreated(savedInstanceState);
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.detail_activity_menu, menu);
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+        ShareActionProvider mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+        if (mShareActionProvider != null) {
+            mShareActionProvider.setShareIntent(createShareItemIntent());
+        }
+        else {
+            Log.d(LOG_TAG, "Share Action Provider is null?");
+        }
+
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    private Intent createShareItemIntent() {
+        // Get link from database
+        int itemId = -1;
+        if (getArguments() != null) {
+            itemId = getArguments().getInt(DetailItemActivity.ITEM_ID);
+        }
+
+        Cursor cursor = getActivity().getContentResolver().query(
+                RSSFeedContract.ItemEntry.buildItemUri(itemId),
+                new String[] {RSSFeedContract.ItemEntry.COLUMN_LINK},
+                null,
+                null,
+                null
+        );
+
+        String sharedMessage = "#SunReader";
+        if (cursor.moveToFirst()) {
+            sharedMessage = cursor.getString(0);
+        }
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, sharedMessage);
+        return shareIntent;
+    }
 }

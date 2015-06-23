@@ -1,14 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="30dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
     <!--<TextView-->
         <!--android:id="@+id/detail_item_fragment_textview"-->
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="match_parent" />-->
-    <WebView
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/title_detail_item_textview"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/webview"
-         />
-</RelativeLayout>
+        android:gravity="left"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textSize="@dimen/abc_text_size_display_2_material" />
+
+    <TextView
+        android:id="@+id/date_detail_item_textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="left" />
+
+    <TextView
+        android:id="@+id/author_detail_item_textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="left" />
+
+
+
+    <WebView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/detail_textview"
+        android:layout_weight="1"
+        android:layout_marginTop="20dp"
+        android:scrollbars="none"/>
+
+</LinearLayout>

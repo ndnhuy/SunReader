@@ -48,14 +48,13 @@ public class FeedItemsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.feed_items_list_fragment, container, false);
-       // new RssService.RssFeedsDownloader(getActivity()).execute("http://www.androidcentral.com/rss.xml");
 
         mFeedItemsAdapter = new SimpleCursorAdapter(
                 getActivity(),
                 R.layout.one_item_in_list,
                 null,
-                new String[] {RSSFeedContract.ItemEntry.COLUMN_TITLE, RSSFeedContract.ItemEntry.COLUMN_CONTENT_SNIPPET},
-                new int[] {R.id.title_item_in_list_textview, R.id.contentsnippet_item_in_list_textview},
+                new String[]{RSSFeedContract.ItemEntry.COLUMN_TITLE, RSSFeedContract.ItemEntry.COLUMN_CONTENT_SNIPPET},
+                new int[]{R.id.title_item_in_list_textview, R.id.contentsnippet_item_in_list_textview},
                 0
         );
 
@@ -105,7 +104,7 @@ public class FeedItemsFragment extends Fragment {
                 // Get feed url based on feed ID
                 Cursor cursor = getActivity().getContentResolver().query(
                         RSSFeedContract.FeedEntry.buildFeedUri(feedId),
-                        new String[] {RSSFeedContract.FeedEntry.COLUMN_FEED_URL},
+                        new String[]{RSSFeedContract.FeedEntry.COLUMN_FEED_URL},
                         null,
                         null,
                         null
@@ -157,7 +156,6 @@ public class FeedItemsFragment extends Fragment {
 
         }
     }
-
 
 
 }

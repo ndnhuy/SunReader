@@ -18,6 +18,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import example.com.sunreader.controller.ImageLoaderSingleton;
 import example.com.sunreader.controller.SearchResultController;
 import example.com.sunreader.data.ImageHandler;
 import example.com.sunreader.data.RSSFeedContract;
@@ -85,9 +86,12 @@ public class SearchResultFragment extends Fragment {
 
             // Setup icon
             ImageView imgView = (ImageView) convertView.findViewById(R.id.icon_imageview);
+            ImageLoaderSingleton.getInstance(getActivity()).DisplayImage(
+                    ImageHandler.BASE_FAVICON_URL + feed.getLink(),
+                    imgView
+            );
 
-            new ImageHandler(getActivity()).displayImage(ImageHandler.BASE_FAVICON_URL + feed.getLink(), imgView);
-
+//            new ImageHandler(getActivity()).displayImage(ImageHandler.BASE_FAVICON_URL + feed.getLink(), imgView);
 //            Log.v("SearchResultFragment", baseUrl + feed.getLink());
 
             TextView feedNameTextView = (TextView) convertView.findViewById(R.id.feed_name_textview);

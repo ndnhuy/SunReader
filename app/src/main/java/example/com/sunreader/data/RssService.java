@@ -12,15 +12,11 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -198,23 +194,24 @@ public class RssService {
                         itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_CONTENT)
                 );
 
-                // Convert content to UTF-8
-                String rawContent =  itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_CONTENT);
-                byte[] bytes = null;
-                String htmlContent = "";
-                try {
-                    bytes = rawContent.getBytes("UTF-8");
-                    htmlContent = new String(bytes, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-
-                // Extract the first image from the content
-                Document doc = Jsoup.parse(htmlContent);
-                Elements elements = doc.getElementsByTag("img");
-                String srcImage = "";
-                if (elements.size() > 0)
-                    srcImage = elements.get(0).absUrl("src");
+                //TODO disable extract first image from content and download it
+//                // Convert content to UTF-8
+//                String rawContent =  itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_CONTENT);
+//                byte[] bytes = null;
+//                String htmlContent = "";
+//                try {
+//                    bytes = rawContent.getBytes("UTF-8");
+//                    htmlContent = new String(bytes, "UTF-8");
+//                } catch (UnsupportedEncodingException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                // Extract the first image from the content
+//                Document doc = Jsoup.parse(htmlContent);
+//                Elements elements = doc.getElementsByTag("img");
+//                String srcImage = "";
+//                if (elements.size() > 0)
+//                    srcImage = elements.get(0).absUrl("src");
 
 
                 itemValues.put(
@@ -239,12 +236,14 @@ public class RssService {
                     );
 
                     long itemId = ContentUris.parseId(uri);
+
+                    //TODO disable download image based on url
                     // Download image based on url and save to file
-                    new ImageHandler(context).saveImage(
-                            srcImage,
-                            InternalStorageHandler.ITEM_IMAGE_DIRECTORY_NAME,
-                            itemId + ".jpg"
-                    );
+//                    new ImageHandler(context).saveImage(
+//                            srcImage,
+//                            InternalStorageHandler.ITEM_IMAGE_DIRECTORY_NAME,
+//                            itemId + ".jpg"
+//                    );
                 }
 
 

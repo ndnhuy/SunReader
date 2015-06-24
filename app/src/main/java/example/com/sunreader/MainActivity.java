@@ -56,10 +56,12 @@ public class MainActivity extends ActionBarActivity {
         );
 
         ListView listView = (ListView) findViewById(R.id.left_drawer);
+
         listView.setAdapter(mFeedNamesAdapter);
 
         mFeedNamesViewController = new FeedNamesViewController(this, mFeedNamesAdapter, getSupportFragmentManager());
         listView.setOnItemClickListener(mFeedNamesViewController);
+        listView.setOnItemLongClickListener(mFeedNamesViewController);
 
         // Set onViewBinding
         mFeedNamesAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
@@ -104,6 +106,8 @@ public class MainActivity extends ActionBarActivity {
                     .commit();
         }
     }
+
+
 
 
     private void setUpBasicUI() {
@@ -175,6 +179,10 @@ public class MainActivity extends ActionBarActivity {
         switch (id) {
             case R.id.action_settings: {
                 Log.v(LOG_TAG, "CLICK on setting");
+                break;
+            }
+            case R.id.search: {
+                mDrawerLayout.closeDrawers();
                 break;
             }
             case R.id.action_refresh: {

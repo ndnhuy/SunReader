@@ -22,8 +22,8 @@ import example.com.sunreader.DetailItemActivity;
 import example.com.sunreader.FeedItemsFragment;
 import example.com.sunreader.R;
 import example.com.sunreader.data.ImageHandler;
-import example.com.sunreader.data.InternalStorageHandler;
 import example.com.sunreader.data.RSSFeedContract;
+import example.com.sunreader.libs.ImageLoader;
 
 public class ItemsViewController implements AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
     private final String LOG_TAG = ItemsViewController.class.getSimpleName();
@@ -141,12 +141,17 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
                         Log.e(LOG_TAG, "Cannot retrieve ImageView");
                         return false;
                     }
-
-                    new ImageHandler(mActivity).loadingImageFromFileAndBindToView(
-                            InternalStorageHandler.ITEM_IMAGE_DIRECTORY_NAME,
-                            cursor.getString(COLUMN_ID_INDEX) + ".jpg",
+                    ImageLoader imageLoader = ImageLoaderSingleton.getInstance(mActivity);
+                    imageLoader.DisplayImage(
+                            new ImageHandler(mActivity).extractThumnailFromContent(cursor.getInt(COLUMN_ID_INDEX)),
                             imgView
                     );
+                    //TODO disable loading image from file and bind to view
+//                    new ImageHandler(mActivity).loadingImageFromFileAndBindToView(
+//                            InternalStorageHandler.ITEM_IMAGE_DIRECTORY_NAME,
+//                            cursor.getString(COLUMN_ID_INDEX) + ".jpg",
+//                            imgView
+//                    );
 
                     ((TextView) view).setText(cursor.getString(COLUMN_CONTENT_SNIPPET_INDEX));
 

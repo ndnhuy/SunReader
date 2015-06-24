@@ -64,4 +64,17 @@ public class InternalStorageHandler {
 
         return null;
     }
+
+    public boolean deleteFile(String dirName, String fileName) {
+        File dir = mContext.getDir(dirName, Context.MODE_PRIVATE);
+        File fileTodelete = new File(dir, fileName);
+        if (fileTodelete.exists()) {
+            fileTodelete.delete();
+            return true;
+        }
+
+        return false;
+    }
+
+
 }

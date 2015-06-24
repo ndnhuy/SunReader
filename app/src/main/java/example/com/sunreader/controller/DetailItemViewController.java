@@ -2,16 +2,24 @@ package example.com.sunreader.controller;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
+import android.view.View;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import example.com.sunreader.DetailItemActivity;
 import example.com.sunreader.R;
@@ -43,15 +51,32 @@ public class DetailItemViewController implements LoaderManager.LoaderCallbacks<C
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
 
         if (!data.moveToFirst())
             return;
 
-        bindInformationToViews(data);
+        try {
+            bindInformationToViews(data);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        // Set vistwebsite button click
+        final Button button = (Button) mActivity.findViewById(R.id.visitwebsite_button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String url = data.getString(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_LINK));
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                mActivity.startActivity(browserIntent);
+                if (!url.startsWith("http://") && !url.startsWith("https://"))
+                    url = "http://" + url;
+            }
+        });
     }
 
-    private void bindInformationToViews(Cursor data) {
+    private void bindInformationToViews(Cursor data) throws ParseException {
         // Setup details view
         String rawDetail = data.getString(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_CONTENT));
         byte[] bytes = null;
@@ -65,6 +90,12 @@ public class DetailItemViewController implements LoaderManager.LoaderCallbacks<C
 
         Log.v(LOG_TAG, "URL: " + html);
         WebView view = (WebView) mActivity.findViewById(R.id.detail_textview);
+        WebSettings ws = view.getSettings();
+        ws.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
+        ws.getPluginState();
+        ws.setPluginState(WebSettings.PluginState.ON);
+        ws.setJavaScriptEnabled(true);
+
         view.loadData(html, "text/html", "utf-8");
 
         // Setup title view
@@ -73,9 +104,18 @@ public class DetailItemViewController implements LoaderManager.LoaderCallbacks<C
                 data.getString(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_TITLE))
         );
 
+
+        Long dateTime = data.getLong(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm");
+        Date date = new Date(dateTime);
+
+//        Date date = new Date(dateLong);
+//
+//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
+//        Date date = simpleDateFormat.parse());
         bindTextToTextView(
                 (TextView) mActivity.findViewById(R.id.date_detail_item_textview),
-                data.getString(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT))
+                dateFormat.format(date)
         );
 
         bindTextToTextView(

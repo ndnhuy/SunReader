@@ -152,6 +152,7 @@ public class RSSFeedProvider extends ContentProvider {
                         selection,
                         selectionArgs
                 );
+
                 break;
             }
             case UriMatcherBuilder.ITEM: {
@@ -160,6 +161,7 @@ public class RSSFeedProvider extends ContentProvider {
                         selection,
                         selectionArgs
                 );
+
                 break;
             }
         }

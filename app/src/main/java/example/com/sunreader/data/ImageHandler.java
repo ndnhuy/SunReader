@@ -2,13 +2,19 @@ package example.com.sunreader.data;
 
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageView;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 
 import example.com.sunreader.R;
@@ -22,6 +28,40 @@ public class ImageHandler {
     public ImageHandler(Context context) {
         mContext = context;
     }
+
+
+    public String extractThumnailFromContent(int itemId) {
+        // Get content based on the id
+        Cursor cursor = mContext.getContentResolver().query(
+                RSSFeedContract.ItemEntry.buildItemUri(itemId),
+                new String[] {RSSFeedContract.ItemEntry.COLUMN_CONTENT},
+                null,
+                null,
+                null
+        );
+        if (cursor.moveToFirst()) {
+            String rawContent = cursor.getString(0);
+            byte[] bytes = null;
+            String htmlContent = "";
+            try {
+                bytes = rawContent.getBytes("UTF-8");
+                htmlContent = new String(bytes, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
+            // Extract the first image from the content
+            Document doc = Jsoup.parse(htmlContent);
+            Elements elements = doc.getElementsByTag("img");
+            String srcImage = "";
+            if (elements.size() > 0)
+                srcImage = elements.get(0).absUrl("src");
+
+            return srcImage;
+        }
+        return "";
+    }
+
 
     public void saveImage(String url, String dirName, String fileName) {
         new ImageDownloadAndSaveToStorage(url, dirName, fileName).execute();
@@ -62,6 +102,7 @@ public class ImageHandler {
 
             Bitmap bitmap = null;
             try {
+                Log.v(LOG_TAG, "DOWNLOAD IMAGES");
                 // Download Image from URL
                 InputStream input = new java.net.URL(mUrl).openStream();
                 // Decode Bitmap
@@ -74,8 +115,10 @@ public class ImageHandler {
 
         @Override
         protected void onPostExecute(Bitmap result) {
-            if (result != null)
+            if (result != null) {
+                Log.v(LOG_TAG, "DOWNLOAD IMAGES SUCCESSFUL");
                 new InternalStorageHandler(mContext).saveImage(result, mDirName, mFileName);
+            }
         }
     }
 
@@ -94,6 +137,7 @@ public class ImageHandler {
             Bitmap bitmap = null;
             try {
                 // Download Image from URL
+
                 InputStream input = new java.net.URL(mUrl).openStream();
                 // Decode Bitmap
                 bitmap = BitmapFactory.decodeStream(input);
@@ -132,12 +176,11 @@ public class ImageHandler {
         @Override
         protected Bitmap doInBackground(Void... voids) {
             Bitmap bmp = null;
+            Log.v(LOG_TAG, "LOADING THUMNAILS");
             bmp = new InternalStorageHandler(mContext).loadImageFromStorage(
                     mDirName,
                     mFileName
             );
-
-            Log.v(LOG_TAG, "Loading succuessful: " + mFileName + " for " + mImgView.hashCode());
 
             return bmp;
         }
@@ -146,8 +189,10 @@ public class ImageHandler {
         protected void onPostExecute(Bitmap bitmap) {
             if (imageViewRef != null && bitmap != null) {
                 final ImageView imgView = imageViewRef.get();
-                if (imgView != null)
+                if (imgView != null) {
                     imgView.setImageBitmap(bitmap);
+                    Log.v(LOG_TAG, "LOADING THUMNAILS SUCCESSFUL");
+                }
             }
             else {
                 final ImageView imgView = imageViewRef.get();

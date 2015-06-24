@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
@@ -12,14 +13,19 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v7.widget.PopupMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Toast;
 
 import example.com.sunreader.FeedItemsFragment;
 import example.com.sunreader.R;
+import example.com.sunreader.data.InternalStorageHandler;
 import example.com.sunreader.data.RSSFeedContract;
 
-public class FeedNamesViewController implements AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class FeedNamesViewController implements AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemLongClickListener {
+    private final String LOG_TAG = FeedNamesViewController.class.getSimpleName();
     private Activity mActivity;
     private SimpleCursorAdapter mFeedNamesAdapter;
     private FragmentManager mFragmentManager;
@@ -58,21 +64,36 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
         updateUnderlyingItems(mFeedNamesAdapter.getCursor().getString(COLUMN_FEEDURL_INDEX),
                 mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX));
 
+        saveFeedIdToSharedRefFile();
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
+        PopupMenu popup = new PopupMenu(mActivity, view);
+
+        popup.getMenuInflater()
+                .inflate(R.menu.feed_popup_menu, popup.getMenu());
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+                String feedId = mFeedNamesAdapter.getCursor().getString(COLUMN_ID_INDEX);
+                new DeleteFeedHandler(feedId).execute();
+                return true;
+            }
+        });
+
+        popup.show();
+        return true;
+    }
+
+
+    private void saveFeedIdToSharedRefFile() {
         SharedPreferences sharedPref = mActivity.getSharedPreferences(
                 mActivity.getString(R.string.reference_file_key),
                 Context.MODE_PRIVATE);
-
-        //TODO Save feed id to shared reference file
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putInt(FeedItemsFragment.FEED_ID_ARG, mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX));
         editor.commit();
-
-//        //TODO get feedid from shared reference file
-//        SharedPreferences sharedFile = mActivity.getSharedPreferences(
-//                mActivity.getString(R.string.reference_file_key),
-//                Context.MODE_PRIVATE);
-//        int feedId = sharedFile.getInt(FeedItemsFragment.FEED_ID_ARG, -1);
-//        Toast.makeText(mActivity, "Feed ID: " + feedId, Toast.LENGTH_SHORT).show();
     }
 
     private FeedItemsFragment createFragmentContainsItemsOfSelectedFeed() {
@@ -111,5 +132,56 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
         mFeedNamesAdapter.swapCursor(null);
     }
 
+
+    private class DeleteFeedHandler extends AsyncTask<Void, Void, Void> {
+        String feedId;
+
+        public DeleteFeedHandler(String feedId) {
+            this.feedId = feedId;
+        }
+        @Override
+        protected Void doInBackground(Void... voids) {
+            mActivity.getContentResolver().delete(
+                    RSSFeedContract.FeedEntry.CONTENT_URI,
+                    RSSFeedContract.FeedEntry._ID + " = ?",
+                    new String[]{feedId}
+            );
+            new InternalStorageHandler(mActivity).deleteFile(
+                    InternalStorageHandler.FEED_ICON_DIRECTORY_NAME,
+                    feedId + ".jpg"
+            );
+
+            // Delete all thumbnails in directory
+            Cursor cursor = mActivity.getContentResolver().query(
+                    RSSFeedContract.ItemEntry.CONTENT_URI,
+                    new String[] {RSSFeedContract.ItemEntry._ID},
+                    RSSFeedContract.ItemEntry.COLUMN_FEED_ID + " = ?",
+                    new String[] {feedId},
+                    null
+            );
+
+            boolean completedDeletingItemsInDB = false;
+            while (cursor.moveToNext()) {
+                if (completedDeletingItemsInDB == false) {
+                    int rowsDeleted = mActivity.getContentResolver().delete(
+                            RSSFeedContract.ItemEntry.CONTENT_URI,
+                            RSSFeedContract.ItemEntry.COLUMN_FEED_ID + " = ?",
+                            new String[] {feedId}
+                    );
+                    completedDeletingItemsInDB = true;
+                }
+                new InternalStorageHandler(mActivity).deleteFile(
+                        InternalStorageHandler.ITEM_IMAGE_DIRECTORY_NAME,
+                        cursor.getString(COLUMN_ID_INDEX) + ".jpg"
+                );
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Toast.makeText(mActivity, "Delete successfully", Toast.LENGTH_SHORT).show();
+        }
+    }
 
 }

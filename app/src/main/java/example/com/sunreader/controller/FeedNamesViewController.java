@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -63,7 +64,15 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
                 .replace(R.id.container, createFragmentContainsItemsOfSelectedFeed())
                 .commit();
 
-        ((DrawerLayout) mActivity.findViewById(R.id.drawer_layout)).closeDrawers();
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ((DrawerLayout) mActivity.findViewById(R.id.drawer_layout)).closeDrawers();
+            }
+        }, 500);
+
+
 
         // Update underlying contents
         updateUnderlyingItems(mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX));

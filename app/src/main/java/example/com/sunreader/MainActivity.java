@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -23,8 +24,10 @@ import android.widget.TextView;
 
 import example.com.sunreader.controller.FeedNamesViewController;
 import example.com.sunreader.controller.ItemsUpdater;
+import example.com.sunreader.controller.NetworkChecker;
 import example.com.sunreader.data.ImageHandler;
 import example.com.sunreader.data.RSSFeedContract;
+import example.com.sunreader.data.SharedFileHandler;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -43,6 +46,10 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        NetworkChecker.check(this);
+
+        new ItemsUpdater(this, -1).execute();
 
         setUpBasicUI();
 
@@ -75,17 +82,16 @@ public class MainActivity extends ActionBarActivity {
 
 
                         ViewGroup viewGroup = (ViewGroup) view.getParent();
+                        viewGroup.setBackgroundResource(0);
                         ImageView imgView = (ImageView) viewGroup.findViewById(R.id.feed_icon_imageview);
                         if (imgView != null) {
                             long feedId = cursor.getLong(FeedNamesViewController.COLUMN_ID_INDEX);
                             if (feedId == FeedNamesViewController.HOME_ID) {
                                 imgView.setImageResource(R.mipmap.ic_show_all);
-                            }
-                            else if (feedId == FeedNamesViewController.SAVED_FOR_LATER_ID) {
+                            } else if (feedId == FeedNamesViewController.SAVED_FOR_LATER_ID) {
                                 imgView.setImageResource(R.mipmap.ic_show_saved);
                                 viewGroup.setBackgroundResource(R.drawable.box_layout);
-                            }
-                            else {
+                            } else {
 
                                 new ImageHandler(getApplicationContext()).displayIconOfFeed
                                         (
@@ -94,8 +100,7 @@ public class MainActivity extends ActionBarActivity {
                                         );
                             }
 
-                        }
-                        else {
+                        } else {
                             Log.e(LOG_TAG, "ImageView is null");
                         }
                         break;
@@ -103,12 +108,11 @@ public class MainActivity extends ActionBarActivity {
                 }
 
 
-
                 return false;
             }
         });
 
-        getSupportLoaderManager().initLoader(FEED_NAME_LOADER, null, mFeedNamesViewController);
+//        getSupportLoaderManager().initLoader(FEED_NAME_LOADER, null, mFeedNamesViewController);
 
 
         if (savedInstanceState == null) {
@@ -200,12 +204,8 @@ public class MainActivity extends ActionBarActivity {
                 break;
             }
             case R.id.action_refresh: {
-                // Get id from shared file
-                SharedPreferences sharedFile = this.getSharedPreferences(
-                        this.getString(R.string.reference_file_key),
-                        Context.MODE_PRIVATE
-                );
-                int feedId = sharedFile.getInt(FeedItemsFragment.FEED_ID_ARG, -1);
+
+                int feedId = SharedFileHandler.getSharedPrefFile(this).getInt(FeedItemsFragment.FEED_ID_ARG, -1);
 
                 FeedItemsFragment feedItemsFragment = new FeedItemsFragment();
                 Bundle bundle = new Bundle();
@@ -243,8 +243,17 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+
+    }
+
+    @Override
     protected void onResume() {
-        getSupportLoaderManager().restartLoader(FEED_NAME_LOADER, null, mFeedNamesViewController);
+        if (getSupportLoaderManager().getLoader(FEED_NAME_LOADER) != null) {
+            getSupportLoaderManager().restartLoader(FEED_NAME_LOADER, null, mFeedNamesViewController);
+        } else {
+            getSupportLoaderManager().initLoader(FEED_NAME_LOADER, null, mFeedNamesViewController);
+        }
 
         // Reload fragment
         // Get id from shared file
@@ -262,7 +271,6 @@ public class MainActivity extends ActionBarActivity {
                 .beginTransaction()
                 .replace(R.id.container, feedItemsFragment)
                 .commit();
-
 
 
         if (searchMenuItem != null)

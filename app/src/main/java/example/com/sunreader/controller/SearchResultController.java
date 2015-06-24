@@ -1,11 +1,12 @@
 package example.com.sunreader.controller;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
@@ -14,6 +15,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 
+import example.com.sunreader.MessageFragment;
 import example.com.sunreader.R;
 import example.com.sunreader.data.ImageHandler;
 import example.com.sunreader.data.InternalStorageHandler;
@@ -24,13 +26,15 @@ import example.com.sunreader.value_object.RssFeed;
 
 public class SearchResultController extends AsyncTask<String, Void, RssFeed[]> {
 
-    private Context mContext;
+    private Activity mContext;
     private ArrayAdapter<RssFeed> mFeedsAdapter;
     private ProgressDialog loadingDialog;
-    public SearchResultController(Context context, ArrayAdapter<RssFeed> feedsAdapter) {
+    private FragmentManager mFragmentManager;
+    public SearchResultController(Activity context, ArrayAdapter<RssFeed> feedsAdapter, FragmentManager fragmentManager) {
         mContext = context;
         mFeedsAdapter = feedsAdapter;
         loadingDialog = new ProgressDialog(mContext);
+        mFragmentManager = fragmentManager;
     }
 
     @Override
@@ -57,13 +61,27 @@ public class SearchResultController extends AsyncTask<String, Void, RssFeed[]> {
 
     @Override
     protected void onPostExecute(RssFeed[] rssFeeds) {
-        super.onPostExecute(rssFeeds);
+        if (rssFeeds == null) {
+            mFragmentManager.beginTransaction()
+                    .replace(R.id.container, MessageFragment.createWithMessage("No results."))
+                    .commit();
+            return;
+        }
+
+        if (rssFeeds.length == 0) {
+            mFragmentManager.beginTransaction()
+                    .replace(R.id.container, MessageFragment.createWithMessage("No results."))
+                    .commit();
+            return;
+        }
+
 
         for (int i = 0; i < rssFeeds.length; i++) {
             mFeedsAdapter.add(rssFeeds[i]);
         }
 
         loadingDialog.dismiss();
+
     }
 
     public AddButtonOnClickListener createAddButtonOnClickListener(int position) {

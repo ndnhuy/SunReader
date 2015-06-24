@@ -2,8 +2,6 @@ package example.com.sunreader.controller;
 
 
 import android.app.Activity;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -122,40 +120,7 @@ public class DetailItemViewController implements LoaderManager.LoaderCallbacks<C
 
     }
 
-    public static void saveForLater(Context context, long itemId) {
-        ContentValues values = new ContentValues();
-        values.put(RSSFeedContract.ItemEntry.COLUMN_SAVED, 1);
 
-        context.getContentResolver().update(
-                RSSFeedContract.ItemEntry.CONTENT_URI,
-                values,
-                RSSFeedContract.ItemEntry._ID + " = ?",
-                new String[]{Long.toString(itemId)}
-        );
-    }
-
-    public static void unsaved(Context context, long itemId) {
-        ContentValues values = new ContentValues();
-        values.put(RSSFeedContract.ItemEntry.COLUMN_SAVED, 0);
-
-        context.getContentResolver().update(
-                RSSFeedContract.ItemEntry.CONTENT_URI,
-                values,
-                RSSFeedContract.ItemEntry._ID + " = ?",
-                new String[]{Long.toString(itemId)}
-        );
-    }
-    public static void markAsUnread(Context context, long itemId) {
-        ContentValues values = new ContentValues();
-        values.put(RSSFeedContract.ItemEntry.COLUMN_READ, 0);
-
-        context.getContentResolver().update(
-                RSSFeedContract.ItemEntry.CONTENT_URI,
-                values,
-                RSSFeedContract.ItemEntry._ID + " = ?",
-                new String[]{Long.toString(itemId)}
-        );
-    }
 
 }
 

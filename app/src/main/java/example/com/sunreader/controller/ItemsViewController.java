@@ -12,12 +12,14 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import example.com.sunreader.DetailItemActivity;
 import example.com.sunreader.FeedItemsFragment;
@@ -25,9 +27,13 @@ import example.com.sunreader.R;
 import example.com.sunreader.data.DateConverter;
 import example.com.sunreader.data.ImageHandler;
 import example.com.sunreader.data.RSSFeedContract;
+import example.com.sunreader.data.SharedFileHandler;
 import example.com.sunreader.libs.ImageLoader;
 
-public class ItemsViewController implements AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
+public class ItemsViewController implements AdapterView.OnItemClickListener,
+                                            LoaderManager.LoaderCallbacks<Cursor>,
+                                            SwipeRefreshLayout.OnRefreshListener,
+                                                AdapterView.OnItemLongClickListener {
     private final String LOG_TAG = ItemsViewController.class.getSimpleName();
 
     Activity mActivity;
@@ -61,6 +67,26 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
                 RSSFeedContract.ItemEntry._ID + " = ?",
                 new String[]{Integer.toString(itemId)}
         );
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+        String showMessage = "";
+        if (SharedFileHandler.getSharedPrefFile(mActivity)
+                .getInt(FeedItemsFragment.FEED_ID_ARG, -1)
+                == FeedNamesViewController.SAVED_FOR_LATER_ID) {
+            showMessage = "UNSAVED";
+            ItemState.unsaved(mActivity, mFeedItemsAdapter.getCursor().getLong(COLUMN_ID_INDEX));
+        }
+        else {
+            showMessage = "SAVED";
+            ItemState.saveForLater(mActivity, mFeedItemsAdapter.getCursor().getLong(COLUMN_ID_INDEX));
+        }
+        Toast toast = Toast.makeText(mActivity, showMessage, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
+
+        return true;
     }
 
     @Override
@@ -130,6 +156,9 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
     public void onRefresh() {
 
     }
+
+
+
 
     public class ItemsViewBinder implements SimpleCursorAdapter.ViewBinder {
 

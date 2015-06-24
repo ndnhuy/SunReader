@@ -4,6 +4,7 @@ package example.com.sunreader.controller;
 import android.app.Activity;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -14,6 +15,7 @@ import example.com.sunreader.data.RSSFeedContract;
 import example.com.sunreader.data.RssService;
 
 public class ItemsUpdater extends AsyncTask<Void, Void, Void> {
+    private final static String LOG_TAG = ItemsUpdater.class.getSimpleName();
     private Activity mActivity;
     private long mFeedId;
 
@@ -26,12 +28,18 @@ public class ItemsUpdater extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPreExecute() {
-        Toast.makeText(mActivity, "Loading...", Toast.LENGTH_SHORT).show();
+        if (NetworkChecker.check(mActivity)) {
+            Toast.makeText(mActivity, "Loading...", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            this.cancel(true);
+        }
+
     }
 
     @Override
     protected Void doInBackground(Void... voids) {
-
+        Log.v(LOG_TAG, "Start downloading");
         try {
             if (mFeedId == FeedNamesViewController.HOME_ID) {
                 // Get id and link of all feeds

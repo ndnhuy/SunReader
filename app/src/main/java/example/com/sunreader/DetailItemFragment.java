@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import example.com.sunreader.controller.DetailItemViewController;
+import example.com.sunreader.controller.ItemState;
 import example.com.sunreader.data.RSSFeedContract;
 
 public class DetailItemFragment extends Fragment {
@@ -68,6 +69,25 @@ public class DetailItemFragment extends Fragment {
             Log.d(LOG_TAG, "Share Action Provider is null?");
         }
 
+        // Set up action_save butotn
+        menuItem = menu.findItem(R.id.action_save);
+        if (getArguments() != null) {
+            long itemId = getArguments().getInt(DetailItemActivity.ITEM_ID);
+            Cursor cursor = getActivity().getContentResolver().query(
+                    RSSFeedContract.ItemEntry.buildItemUri(itemId),
+                    new String[] {RSSFeedContract.ItemEntry.COLUMN_SAVED},
+                    null,
+                    null,
+                    null
+            );
+            if (cursor.moveToFirst()) {
+                if (cursor.getInt(0) == ItemState.SAVED) {
+                    menuItem.setIcon(R.mipmap.ic_saved_for_later);
+                    menuItem.setTitle("Unsaved");
+                }
+            }
+        }
+
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -80,17 +100,17 @@ public class DetailItemFragment extends Fragment {
         if (item.getItemId() == R.id.action_save) {
 
             if (clickToSave(item)) {
-                DetailItemViewController.saveForLater(getActivity(), itemId);
+                ItemState.saveForLater(getActivity(), itemId);
                 item.setIcon(getResources().getDrawable(R.mipmap.ic_saved_for_later));
                 item.setTitle(getString(R.string.unsaved));
             } else if (clickToUnsave(item)) {
-                DetailItemViewController.unsaved(getActivity(), itemId);
+                ItemState.unsaved(getActivity(), itemId);
                 item.setIcon(getResources().getDrawable(R.mipmap.ic_to_save_for_later));
                 item.setTitle(getString(R.string.saved));
             }
         }
         else if (item.getItemId() == R.id.action_unread) {
-            DetailItemViewController.markAsUnread(getActivity(), itemId);
+            ItemState.markAsUnread(getActivity(), itemId);
             Toast.makeText(getActivity(), "Unread", Toast.LENGTH_SHORT).show();
         }
         return super.onOptionsItemSelected(item);

@@ -11,16 +11,33 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import example.com.sunreader.controller.NetworkChecker;
+
 public class SearchResultActivity extends ActionBarActivity {
+    private final static String LOG_TAG = SearchResultActivity.class.getSimpleName();
+
+    MenuItem searchMenuItem;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.search_results_activity);
 
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        handleIntent(getIntent());
+        if (!NetworkChecker.check(this)) {
+
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, MessageFragment.createWithMessage("No results."))
+                    .commit();
+        }
+        else {
+            handleIntent(getIntent());
+        }
+
+
 
 //        if (savedInstanceState == null) {
 //            getSupportFragmentManager().beginTransaction()
@@ -50,6 +67,10 @@ public class SearchResultActivity extends ActionBarActivity {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, searchResultFragment)
                     .commit();
+
+            if (searchMenuItem != null)
+                MenuItemCompat.collapseActionView(searchMenuItem);
+
         }
     }
 
@@ -61,9 +82,9 @@ public class SearchResultActivity extends ActionBarActivity {
         SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 
-        MenuItem menuItem = menu.findItem(R.id.search);
+        searchMenuItem = menu.findItem(R.id.search);
         SearchView searchView =
-                (SearchView) MenuItemCompat.getActionView(menuItem);
+                (SearchView) MenuItemCompat.getActionView(searchMenuItem);
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(
                         getComponentName()

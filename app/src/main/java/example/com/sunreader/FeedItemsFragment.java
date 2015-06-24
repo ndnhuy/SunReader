@@ -74,6 +74,7 @@ public class FeedItemsFragment extends Fragment {
 
         mItemsViewController = new ItemsViewController(getActivity(), mFeedItemsAdapter);
         listView.setOnItemClickListener(mItemsViewController);
+        listView.setOnItemLongClickListener(mItemsViewController);
 
         mFeedItemsAdapter.setViewBinder(mItemsViewController.createItemsViewBinder());
 

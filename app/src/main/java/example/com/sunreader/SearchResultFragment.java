@@ -54,7 +54,7 @@ public class SearchResultFragment extends Fragment {
             }
         });
 
-        mSearchResultController = new SearchResultController(getActivity(), resultsAdapter);
+        mSearchResultController = new SearchResultController(getActivity(), resultsAdapter, getActivity().getSupportFragmentManager());
         if (getArguments() != null) {
             mSearchResultController.execute(getArguments().getString(QUERY));
         }

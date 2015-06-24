@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -69,22 +70,14 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
         if (args != null) {
             feedId = args.getInt(FeedItemsFragment.FEED_ID_ARG);
         }
-        if (feedId != -1) {
-            return new CursorLoader(
-                    mActivity,
-                    RSSFeedContract.ItemEntry.buildItemWithFeedId(feedId),
-                    new String[]{RSSFeedContract.ItemEntry._ID,
-                            RSSFeedContract.ItemEntry.COLUMN_TITLE,
-                            RSSFeedContract.ItemEntry.COLUMN_CONTENT_SNIPPET,
-                            RSSFeedContract.ItemEntry.COLUMN_AUTHOR,
-                            RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT,
-                            RSSFeedContract.ItemEntry.COLUMN_READ},
-                    null,
-                    null,
-                    RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT + " DESC"
-            );
-        } else {
+
+        Uri uri;
+        if (feedId == FeedNamesViewController.HOME_ID) {
             // Load all items
+            uri = RSSFeedContract.ItemEntry.CONTENT_URI;
+
+        }
+        else if (feedId == FeedNamesViewController.SAVED_FOR_LATER_ID) {
             return new CursorLoader(
                     mActivity,
                     RSSFeedContract.ItemEntry.CONTENT_URI,
@@ -94,12 +87,27 @@ public class ItemsViewController implements AdapterView.OnItemClickListener, Loa
                             RSSFeedContract.ItemEntry.COLUMN_AUTHOR,
                             RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT,
                             RSSFeedContract.ItemEntry.COLUMN_READ},
-                    null,
-                    null,
+                    RSSFeedContract.ItemEntry.COLUMN_SAVED + " = ?",
+                    new String[] {"1"},
                     RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT + " DESC"
             );
         }
-
+        else {
+            uri = RSSFeedContract.ItemEntry.buildItemWithFeedId(feedId);
+        }
+        return new CursorLoader(
+                mActivity,
+                uri,
+                new String[]{RSSFeedContract.ItemEntry._ID,
+                        RSSFeedContract.ItemEntry.COLUMN_TITLE,
+                        RSSFeedContract.ItemEntry.COLUMN_CONTENT_SNIPPET,
+                        RSSFeedContract.ItemEntry.COLUMN_AUTHOR,
+                        RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT,
+                        RSSFeedContract.ItemEntry.COLUMN_READ},
+                null,
+                null,
+                RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT + " DESC"
+        );
     }
 
     @Override

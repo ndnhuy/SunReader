@@ -2,7 +2,6 @@ package example.com.sunreader;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -112,21 +111,8 @@ public class FeedItemsFragment extends Fragment {
                         .replace(R.id.container, feedItemsFragment)
                         .commit();
 
-                // Get feed url based on feed ID
-                Cursor cursor = getActivity().getContentResolver().query(
-                        RSSFeedContract.FeedEntry.buildFeedUri(feedId),
-                        new String[]{RSSFeedContract.FeedEntry.COLUMN_FEED_URL},
-                        null,
-                        null,
-                        null
-                );
 
-                String feedUrl = "";
-                if (cursor.moveToFirst()) {
-                    feedUrl = cursor.getString(0);
-                }
-
-                new ItemsUpdater(getActivity(), feedUrl, feedId).execute();
+                new ItemsUpdater(getActivity(), feedId).execute();
             }
         });
 

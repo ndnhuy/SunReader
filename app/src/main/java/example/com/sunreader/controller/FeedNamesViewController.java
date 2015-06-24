@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -30,6 +31,10 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
     private SimpleCursorAdapter mFeedNamesAdapter;
     private FragmentManager mFragmentManager;
 
+
+    public static final int HOME_ID = -1;
+    public static final int SAVED_FOR_LATER_ID = -2;
+
     public static final int COLUMN_ID_INDEX = 0;
     public static final int COLUMN_TITLE_INDEX = 1;
     public static final int COLUMN_FEEDURL_INDEX = 2;
@@ -47,8 +52,8 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
             }
         });
     }
-    private void updateUnderlyingItems(String feedUrl, int feedId) {
-        new ItemsUpdater(mActivity, feedUrl, feedId).execute();
+    private void updateUnderlyingItems(int feedId) {
+        new ItemsUpdater(mActivity, feedId).execute();
     }
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -61,8 +66,7 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
         ((DrawerLayout) mActivity.findViewById(R.id.drawer_layout)).closeDrawers();
 
         // Update underlying contents
-        updateUnderlyingItems(mFeedNamesAdapter.getCursor().getString(COLUMN_FEEDURL_INDEX),
-                mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX));
+        updateUnderlyingItems(mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX));
 
         saveFeedIdToSharedRefFile();
     }
@@ -124,7 +128,32 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mFeedNamesAdapter.swapCursor(data);
+
+        // add headers for side bar
+        String[] columnNames = data.getColumnNames();
+        MatrixCursor matrixCursor = new MatrixCursor(columnNames, 1);
+
+        String[] headers = new String[]{"HOME", "SAVED FOR LATER"};
+        int[] headerIDs = new int[]{HOME_ID, SAVED_FOR_LATER_ID};
+        for (int i = 0; i < headers.length; i++) {
+            MatrixCursor.RowBuilder rowBuilder = matrixCursor.newRow();
+            rowBuilder.add(headerIDs[i]);
+            rowBuilder.add(headers[i]);
+            rowBuilder.add("");
+            rowBuilder.add("");
+        }
+
+        while (data.moveToNext()) {
+            MatrixCursor.RowBuilder rowBuilder = matrixCursor.newRow();
+            for (String columnName : columnNames) {
+                int columnIndex = data.getColumnIndex(columnName);
+                String row = data.getString(columnIndex);
+                rowBuilder.add(row);
+            }
+        }
+
+
+        mFeedNamesAdapter.swapCursor(matrixCursor);
     }
 
     @Override

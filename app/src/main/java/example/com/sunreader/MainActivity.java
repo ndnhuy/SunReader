@@ -72,25 +72,37 @@ public class MainActivity extends ActionBarActivity {
                 switch (columnIndex) {
                     case FeedNamesViewController.COLUMN_TITLE_INDEX: {
                         ((TextView) view).setText(cursor.getString(FeedNamesViewController.COLUMN_TITLE_INDEX));
+
+
+                        ViewGroup viewGroup = (ViewGroup) view.getParent();
+                        ImageView imgView = (ImageView) viewGroup.findViewById(R.id.feed_icon_imageview);
+                        if (imgView != null) {
+                            long feedId = cursor.getLong(FeedNamesViewController.COLUMN_ID_INDEX);
+                            if (feedId == FeedNamesViewController.HOME_ID) {
+                                imgView.setImageResource(R.mipmap.ic_show_all);
+                            }
+                            else if (feedId == FeedNamesViewController.SAVED_FOR_LATER_ID) {
+                                imgView.setImageResource(R.mipmap.ic_show_saved);
+                                viewGroup.setBackgroundResource(R.drawable.box_layout);
+                            }
+                            else {
+
+                                new ImageHandler(getApplicationContext()).displayIconOfFeed
+                                        (
+                                                cursor.getString(FeedNamesViewController.COLUMN_ID_INDEX) + ".jpg",
+                                                imgView
+                                        );
+                            }
+
+                        }
+                        else {
+                            Log.e(LOG_TAG, "ImageView is null");
+                        }
                         break;
                     }
                 }
 
-                // Load icon from internal storagee
-                Log.v("TEST", "LINK " + cursor.getString(FeedNamesViewController.COLUMN_ID_INDEX));
-                ViewGroup viewGroup = (ViewGroup) view.getParent();
-                ImageView imgView = (ImageView) viewGroup.findViewById(R.id.feed_icon_imageview);
-                if (imgView != null) {
-                    new ImageHandler(getApplicationContext()).displayIconOfFeed
-                            (
-                                    cursor.getString(FeedNamesViewController.COLUMN_ID_INDEX) + ".jpg",
-                                    imgView
-                                    );
 
-                }
-                else {
-                    Log.e(LOG_TAG, "ImageView is null");
-                }
 
                 return false;
             }
@@ -204,21 +216,21 @@ public class MainActivity extends ActionBarActivity {
                         .commit();
 
 
-                // Get feed url based on feed ID
-                Cursor cursor = this.getContentResolver().query(
-                        RSSFeedContract.FeedEntry.buildFeedUri(feedId),
-                        new String[] {RSSFeedContract.FeedEntry.COLUMN_FEED_URL},
-                        null,
-                        null,
-                        null
-                );
+//                // Get feed url based on feed ID
+//                Cursor cursor = this.getContentResolver().query(
+//                        RSSFeedContract.FeedEntry.buildFeedUri(feedId),
+//                        new String[] {RSSFeedContract.FeedEntry.COLUMN_FEED_URL},
+//                        null,
+//                        null,
+//                        null
+//                );
+//
+//                String feedUrl = "";
+//                if (cursor.moveToFirst()) {
+//                    feedUrl = cursor.getString(0);
+//                }
 
-                String feedUrl = "";
-                if (cursor.moveToFirst()) {
-                    feedUrl = cursor.getString(0);
-                }
-
-                new ItemsUpdater(this, feedUrl, feedId).execute();
+                new ItemsUpdater(this, feedId).execute();
 
 
                 //Toast.makeText(this, Integer.toString(feedId), Toast.LENGTH_SHORT).show();

@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:padding="5dp">
+    android:paddingLeft="20dp">
+
     <ImageView
         android:id="@+id/feed_icon_imageview"
         android:layout_width="wrap_content"
@@ -18,7 +19,7 @@
         android:layout_height="wrap_content"
         android:minHeight="?android:attr/listPreferredItemHeight"
         android:gravity="center_vertical"
-        android:textSize="@dimen/abc_text_size_medium_material"
+        android:textSize="@dimen/abc_text_size_body_1_material"
         android:id="@+id/feed_name_textview"/>
 
 </LinearLayout>

@@ -176,9 +176,11 @@ public class RssService {
                 try {
                     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
                     Date date = simpleDateFormat.parse(itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT));
+                    simpleDateFormat = new SimpleDateFormat(DateConverter.DATE_FORMAT_IN_DB);
+
                     itemValues.put(
                             RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT,
-                            date.getTime()
+                            simpleDateFormat.format(date)
                     );
                 } catch (ParseException e) {
                     e.printStackTrace();

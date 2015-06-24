@@ -101,10 +101,10 @@ public class DetailItemViewController implements LoaderManager.LoaderCallbacks<C
         );
 
 
-        Long dateTime = data.getLong(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT));
+        String dateStr = data.getString(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT));
         bindTextToTextView(
                 (TextView) mActivity.findViewById(R.id.date_detail_item_textview),
-                DateConverter.getReadableDate(dateTime)
+                DateConverter.getReadableDate(dateStr)
         );
 
         bindTextToTextView(

@@ -21,6 +21,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.ParseException;
+
 import example.com.sunreader.DetailItemActivity;
 import example.com.sunreader.FeedItemsFragment;
 import example.com.sunreader.R;
@@ -194,9 +196,13 @@ public class ItemsViewController implements AdapterView.OnItemClickListener,
                 }
                 case COLUMN_DATE_INDEX: {
                     // Convert to readable date
-                    ((TextView) view).setText(
-                            DateConverter.getReadableDate(cursor.getLong(COLUMN_DATE_INDEX))
-                    );
+                    try {
+                        ((TextView) view).setText(
+                                DateConverter.getReadableDate(cursor.getString(COLUMN_DATE_INDEX))
+                        );
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
                     return true;
                 }
 

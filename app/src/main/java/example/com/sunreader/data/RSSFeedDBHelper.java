@@ -43,11 +43,21 @@ public class RSSFeedDBHelper extends SQLiteOpenHelper {
                 " UNIQUE (" + RSSFeedContract.ItemEntry.COLUMN_LINK + ") ON CONFLICT IGNORE" +
                 ")";
 
+        final String SQL_CREATE_TRIGGER = "CREATE TRIGGER AUTO_DELETE_ITEM AFTER INSERT "
+                + "ON " + RSSFeedContract.ItemEntry.TABLE_NAME
+                + " BEGIN DELETE FROM " + RSSFeedContract.ItemEntry.TABLE_NAME
+                + " WHERE " + RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT
+                + " < " + "DATETIME(NEW." + RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT
+                + ", '-2 days'); END;";
+
         sqLiteDatabase.execSQL(SQL_CREATE_FEED_TABLE);
         Log.v(LOG_TAG, "Create Feed table " + SQL_CREATE_FEED_TABLE);
 
         sqLiteDatabase.execSQL(SQL_CREATE_ITEM_TABLE);
         Log.v(LOG_TAG, "Create Item table " + SQL_CREATE_ITEM_TABLE);
+
+        sqLiteDatabase.execSQL(SQL_CREATE_TRIGGER);
+        Log.v(LOG_TAG, "Create Trigger " + SQL_CREATE_TRIGGER);
     }
 
     @Override

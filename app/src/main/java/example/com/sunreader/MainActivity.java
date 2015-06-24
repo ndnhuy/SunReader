@@ -55,6 +55,8 @@ public class MainActivity extends ActionBarActivity {
                 new int[] {R.id.feed_name_textview}
         );
 
+
+
         ListView listView = (ListView) findViewById(R.id.left_drawer);
 
         listView.setAdapter(mFeedNamesAdapter);
@@ -231,6 +233,25 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         getSupportLoaderManager().restartLoader(FEED_NAME_LOADER, null, mFeedNamesViewController);
+
+        // Reload fragment
+        // Get id from shared file
+        SharedPreferences sharedFile = this.getSharedPreferences(
+                this.getString(R.string.reference_file_key),
+                Context.MODE_PRIVATE
+        );
+        int feedId = sharedFile.getInt(FeedItemsFragment.FEED_ID_ARG, -1);
+
+        Bundle feedIdBundle = new Bundle();
+        feedIdBundle.putInt(FeedItemsFragment.FEED_ID_ARG, feedId);
+        FeedItemsFragment feedItemsFragment = new FeedItemsFragment();
+        feedItemsFragment.setArguments(feedIdBundle);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.container, feedItemsFragment)
+                .commit();
+
+
 
         if (searchMenuItem != null)
             MenuItemCompat.collapseActionView(searchMenuItem);

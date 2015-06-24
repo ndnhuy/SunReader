@@ -193,6 +193,11 @@ public class RssService {
                         RSSFeedContract.ItemEntry.COLUMN_CONTENT,
                         itemJSON.getString(RSSFeedContract.ItemEntry.COLUMN_CONTENT)
                 );
+                itemValues.put(
+                        RSSFeedContract.ItemEntry.COLUMN_SAVED,
+                        0
+                );
+
 
                 //TODO disable extract first image from content and download it
 //                // Convert content to UTF-8

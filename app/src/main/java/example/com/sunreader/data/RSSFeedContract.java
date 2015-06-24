@@ -39,6 +39,7 @@ public class RSSFeedContract {
         public static final String COLUMN_PUBLISHED_DATETEXT = "publishedDate";
         public static final String COLUMN_FEED_ID = "feed_id";
         public static final String COLUMN_READ = "read";
+        public static final String COLUMN_SAVED = "saved";
 
         public static Uri buildItemUri(long id) {
             Uri uri = ContentUris.withAppendedId(CONTENT_URI, id);

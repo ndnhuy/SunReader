@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import example.com.sunreader.controller.DetailItemViewController;
 import example.com.sunreader.data.RSSFeedContract;
@@ -26,7 +27,14 @@ public class DetailItemFragment extends Fragment {
     private final int DETAIL_ITEM_LOADER = 0;
     private View mRootView;
 
-    public DetailItemFragment() {}
+    public DetailItemFragment() {
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,6 +69,39 @@ public class DetailItemFragment extends Fragment {
         }
 
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        long itemId = 0;
+        if (getArguments() != null) {
+            itemId = getArguments().getInt(DetailItemActivity.ITEM_ID);
+        }
+        if (item.getItemId() == R.id.action_save) {
+
+            if (clickToSave(item)) {
+                DetailItemViewController.saveForLater(getActivity(), itemId);
+                item.setIcon(getResources().getDrawable(R.mipmap.ic_saved_for_later));
+                item.setTitle(getString(R.string.unsaved));
+            } else if (clickToUnsave(item)) {
+                DetailItemViewController.unsaved(getActivity(), itemId);
+                item.setIcon(getResources().getDrawable(R.mipmap.ic_to_save_for_later));
+                item.setTitle(getString(R.string.saved));
+            }
+        }
+        else if (item.getItemId() == R.id.action_unread) {
+            DetailItemViewController.markAsUnread(getActivity(), itemId);
+            Toast.makeText(getActivity(), "Unread", Toast.LENGTH_SHORT).show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private boolean clickToSave(MenuItem item) {
+        return item.getTitle().toString().equals(getString(R.string.saved));
+    }
+
+    private boolean clickToUnsave(MenuItem item) {
+        return item.getTitle().toString().equals((getString(R.string.unsaved)));
     }
 
     private Intent createShareItemIntent() {

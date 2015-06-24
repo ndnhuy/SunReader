@@ -13,4 +13,4 @@
         android:divider="@null"
         android:dividerHeight="0dp" />
 
-    </android.support.v4.widget.SwipeRefreshLayout>
+</android.support.v4.widget.SwipeRefreshLayout>

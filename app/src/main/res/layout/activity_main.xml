@@ -11,6 +11,7 @@
         android:id="@+id/container"
         tools:context="example.com.sunreader.MainActivity"
         tools:ignore="MergeRootFrame"/>
+
     <ListView
         android:layout_width="300dp"
         android:layout_height="match_parent"

@@ -36,6 +36,7 @@ public class RSSFeedDBHelper extends SQLiteOpenHelper {
                 RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT + " TEXT NOT NULL," +
                 RSSFeedContract.ItemEntry.COLUMN_FEED_ID + " INTEGER NOT NULL," +
                 RSSFeedContract.ItemEntry.COLUMN_READ + " INTERGER NOT NULL," +
+                RSSFeedContract.ItemEntry.COLUMN_SAVED + " INTEGER NOT NULL," +
                 " FOREIGN KEY (" + RSSFeedContract.ItemEntry.COLUMN_FEED_ID + ") REFERENCES " +
                 RSSFeedContract.FeedEntry.TABLE_NAME + " (" + RSSFeedContract.FeedEntry._ID + "), " +
 

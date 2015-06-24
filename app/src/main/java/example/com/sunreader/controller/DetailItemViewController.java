@@ -2,6 +2,8 @@ package example.com.sunreader.controller;
 
 
 import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -9,7 +11,6 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -18,11 +19,10 @@ import android.widget.TextView;
 
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import example.com.sunreader.DetailItemActivity;
 import example.com.sunreader.R;
+import example.com.sunreader.data.DateConverter;
 import example.com.sunreader.data.RSSFeedContract;
 
 public class DetailItemViewController implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -88,7 +88,6 @@ public class DetailItemViewController implements LoaderManager.LoaderCallbacks<C
             e.printStackTrace();
         }
 
-        Log.v(LOG_TAG, "URL: " + html);
         WebView view = (WebView) mActivity.findViewById(R.id.detail_textview);
         WebSettings ws = view.getSettings();
         ws.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
@@ -98,7 +97,6 @@ public class DetailItemViewController implements LoaderManager.LoaderCallbacks<C
 
         view.loadData(html, "text/html", "utf-8");
 
-        // Setup title view
         bindTextToTextView(
                 (TextView) mActivity.findViewById(R.id.title_detail_item_textview),
                 data.getString(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_TITLE))
@@ -106,16 +104,9 @@ public class DetailItemViewController implements LoaderManager.LoaderCallbacks<C
 
 
         Long dateTime = data.getLong(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT));
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm");
-        Date date = new Date(dateTime);
-
-//        Date date = new Date(dateLong);
-//
-//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
-//        Date date = simpleDateFormat.parse());
         bindTextToTextView(
                 (TextView) mActivity.findViewById(R.id.date_detail_item_textview),
-                dateFormat.format(date)
+                DateConverter.getReadableDate(dateTime)
         );
 
         bindTextToTextView(
@@ -131,6 +122,40 @@ public class DetailItemViewController implements LoaderManager.LoaderCallbacks<C
 
     }
 
+    public static void saveForLater(Context context, long itemId) {
+        ContentValues values = new ContentValues();
+        values.put(RSSFeedContract.ItemEntry.COLUMN_SAVED, 1);
+
+        context.getContentResolver().update(
+                RSSFeedContract.ItemEntry.CONTENT_URI,
+                values,
+                RSSFeedContract.ItemEntry._ID + " = ?",
+                new String[]{Long.toString(itemId)}
+        );
+    }
+
+    public static void unsaved(Context context, long itemId) {
+        ContentValues values = new ContentValues();
+        values.put(RSSFeedContract.ItemEntry.COLUMN_SAVED, 0);
+
+        context.getContentResolver().update(
+                RSSFeedContract.ItemEntry.CONTENT_URI,
+                values,
+                RSSFeedContract.ItemEntry._ID + " = ?",
+                new String[]{Long.toString(itemId)}
+        );
+    }
+    public static void markAsUnread(Context context, long itemId) {
+        ContentValues values = new ContentValues();
+        values.put(RSSFeedContract.ItemEntry.COLUMN_READ, 0);
+
+        context.getContentResolver().update(
+                RSSFeedContract.ItemEntry.CONTENT_URI,
+                values,
+                RSSFeedContract.ItemEntry._ID + " = ?",
+                new String[]{Long.toString(itemId)}
+        );
+    }
 
 }
 

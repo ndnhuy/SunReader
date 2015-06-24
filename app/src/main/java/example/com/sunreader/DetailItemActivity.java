@@ -29,4 +29,5 @@ public class DetailItemActivity extends ActionBarActivity {
                     .commit();
         }
     }
+
 }

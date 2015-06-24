@@ -4,8 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <item
+        android:id="@+id/action_save"
+        android:icon="@mipmap/ic_to_save_for_later"
+        app:showAsAction="ifRoom"
+        android:title="@string/saved" />
+
+    <item
         android:id="@+id/action_share"
+        android:icon="@mipmap/ic_share"
         android:title="@string/action_share"
-        app:showAsAction="always"
+        app:showAsAction="never"
         app:actionProviderClass="android.support.v7.widget.ShareActionProvider" />
+    <item
+        android:id="@+id/action_unread"
+        android:title="@string/unread"
+        app:showAsAction="never" />
 </menu>

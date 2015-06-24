@@ -39,6 +39,11 @@ public class FeedItemsFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
@@ -53,8 +58,14 @@ public class FeedItemsFragment extends Fragment {
                 getActivity(),
                 R.layout.one_item_in_list,
                 null,
-                new String[]{RSSFeedContract.ItemEntry.COLUMN_TITLE, RSSFeedContract.ItemEntry.COLUMN_CONTENT_SNIPPET},
-                new int[]{R.id.title_item_in_list_textview, R.id.contentsnippet_item_in_list_textview},
+                new String[]{RSSFeedContract.ItemEntry.COLUMN_TITLE,
+                                RSSFeedContract.ItemEntry.COLUMN_CONTENT_SNIPPET,
+                                RSSFeedContract.ItemEntry.COLUMN_AUTHOR,
+                                RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT},
+                new int[]{R.id.title_item_in_list_textview,
+                        R.id.contentsnippet_item_in_list_textview,
+                        R.id.author_item_in_list_textview,
+                        R.id.date_item_in_list_textview},
                 0
         );
 

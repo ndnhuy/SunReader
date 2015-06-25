@@ -15,6 +15,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -72,10 +73,13 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
             }
         }, 500);
 
-
-
         // Update underlying contents
         updateUnderlyingItems(mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX));
+
+        // Change action bar title
+        ((ActionBarActivity)mActivity).getSupportActionBar().setSubtitle(
+                mFeedNamesAdapter.getCursor().getString(COLUMN_TITLE_INDEX));
+
 
         saveFeedIdToSharedRefFile();
     }

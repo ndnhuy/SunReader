@@ -10,20 +10,26 @@
         android:layout_width="10dp"
         android:layout_height="10dp"
         android:layout_marginRight="30dp"
-        android:layout_marginTop="10dp"
+        android:src="@mipmap/ic_launcher"
+        android:layout_marginTop="8dp"
         android:scaleType="centerInside"
+        android:gravity="center_vertical"
         android:adjustViewBounds="true"/>
 
     <TextView
         android:id="@+id/feed_name_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/abc_text_size_title_material"
+        android:textSize="15sp"
+        android:gravity="center_vertical"
+        android:layout_marginTop="5dp"
         android:layout_toRightOf="@id/icon_imageview"
         android:textStyle="bold"
+        android:textColor="@color/black"
         android:maxEms="10"
         android:singleLine="true"
-        android:ellipsize="end"/>
+        android:ellipsize="end"
+        android:text="abcdef"/>
 
 
     <ImageButton
@@ -32,6 +38,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:tag="add"
+        android:gravity="center_vertical"
         android:src="@mipmap/ic_add_grey"
-        android:background="@null"/>
+        android:paddingBottom="20dp"
+        android:background="@null" />
 </RelativeLayout>

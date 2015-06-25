@@ -26,9 +26,11 @@ import example.com.sunreader.data.RSSFeedContract;
 public class DetailItemViewController implements LoaderManager.LoaderCallbacks<Cursor> {
     private final String LOG_TAG = DetailItemActivity.class.getSimpleName();
     Activity mActivity;
+    private View mRootView;
 
-    public DetailItemViewController(Activity activity) {
+    public DetailItemViewController(Activity activity, View rootView) {
         mActivity = activity;
+        mRootView = rootView;
     }
 
     @Override
@@ -86,7 +88,7 @@ public class DetailItemViewController implements LoaderManager.LoaderCallbacks<C
             e.printStackTrace();
         }
 
-        WebView view = (WebView) mActivity.findViewById(R.id.detail_textview);
+        WebView view = (WebView) mRootView.findViewById(R.id.detail_textview);
         WebSettings ws = view.getSettings();
         ws.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
         ws.getPluginState();
@@ -96,19 +98,19 @@ public class DetailItemViewController implements LoaderManager.LoaderCallbacks<C
         view.loadData(html, "text/html", "utf-8");
 
         bindTextToTextView(
-                (TextView) mActivity.findViewById(R.id.title_detail_item_textview),
+                (TextView) mRootView.findViewById(R.id.title_detail_item_textview),
                 data.getString(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_TITLE))
         );
 
 
         String dateStr = data.getString(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT));
         bindTextToTextView(
-                (TextView) mActivity.findViewById(R.id.date_detail_item_textview),
+                (TextView) mRootView.findViewById(R.id.date_detail_item_textview),
                 DateConverter.getReadableDate(dateStr)
         );
 
         bindTextToTextView(
-                (TextView) mActivity.findViewById(R.id.author_detail_item_textview),
+                (TextView) mRootView.findViewById(R.id.author_detail_item_textview),
                 data.getString(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_AUTHOR))
         );
     }

@@ -49,6 +49,7 @@ public class MainActivity extends ActionBarActivity {
 
         NetworkChecker.check(this);
 
+        // Update all feeds
         new ItemsUpdater(this, -1).execute();
 
         setUpBasicUI();
@@ -132,6 +133,7 @@ public class MainActivity extends ActionBarActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setSubtitle("HOME");
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(

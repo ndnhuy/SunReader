@@ -56,7 +56,7 @@ public class ItemsViewController implements AdapterView.OnItemClickListener,
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         int itemId = mFeedItemsAdapter.getCursor().getInt(0);
         Intent intent = new Intent(mActivity, DetailItemActivity.class)
-        .putExtra(DetailItemActivity.ITEM_ID, itemId);
+                                    .putExtra(DetailItemActivity.ITEM_ID, itemId);
         mActivity.startActivity(intent);
 
         ContentValues values = new ContentValues();
@@ -176,16 +176,19 @@ public class ItemsViewController implements AdapterView.OnItemClickListener,
                     return true;
                 }
                 case COLUMN_TITLE_INDEX: {
+                    ViewGroup parentView = (ViewGroup) view.getParent();
+                    LinearLayout linearLayout = (LinearLayout) parentView;
+                    LinearLayout parent = (LinearLayout) linearLayout.getParent();
+                    ImageView imgView = (ImageView) parent.findViewById(R.id.read_mark_imgView);
                     if (thisItemIsRead(cursor)) {
-                        ViewGroup parentView = (ViewGroup) view.getParent();
-                        LinearLayout linearLayout = (LinearLayout) parentView;
-                        LinearLayout parent = (LinearLayout) linearLayout.getParent();
-                        ImageView imgView = (ImageView) parent.findViewById(R.id.read_mark_imgView);
                         if (imgView == null) {
                             Log.e(LOG_TAG, "Cannot retrieve ImageView");
                             return false;
                         }
                         imgView.setImageResource(R.mipmap.ic_mark_as_read);
+                    }
+                    else {
+                        imgView.setImageResource(0);
                     }
                     ((TextView) view).setText(cursor.getString(COLUMN_TITLE_INDEX));
                     return true;

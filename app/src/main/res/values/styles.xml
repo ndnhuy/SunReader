@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
         <!-- Customize your theme here. -->
     </style>
     <style name="autoscroll">
@@ -12,5 +12,13 @@
         <item name="android:focusableInTouchMode">true</item>
         <item name="android:scrollHorizontally">true</item>
     </style>
+    <style name="TextAppearance.Widget.ActionBar.Title"
+        parent="@android:style/TextAppearance.Medium">
+    </style>
+
+    <style name="TextAppearance.Widget.ActionBar.Subtitle"
+        parent="@android:style/TextAppearance.Small">
+    </style>
+
 
 </resources>

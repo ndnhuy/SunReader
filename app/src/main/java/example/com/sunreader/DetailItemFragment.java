@@ -41,20 +41,23 @@ public class DetailItemFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        mDetailItemViewController = new DetailItemViewController(getActivity());
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.detail_item_fragment, container, false);
+        mDetailItemViewController = new DetailItemViewController(getActivity(), mRootView);
+        getLoaderManager().initLoader(DETAIL_ITEM_LOADER, getArguments(), mDetailItemViewController);
+
         return mRootView;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        Bundle bundle = new Bundle();
-        getLoaderManager().initLoader(DETAIL_ITEM_LOADER, getArguments(), mDetailItemViewController);
+
         super.onActivityCreated(savedInstanceState);
+
     }
 
     @Override

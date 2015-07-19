@@ -1,7 +1,5 @@
 package example.com.sunreader;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -17,16 +15,17 @@ import android.widget.ListView;
 
 import java.io.InputStream;
 
-import example.com.sunreader.controller.ItemsUpdater;
 import example.com.sunreader.controller.ItemsViewController;
 import example.com.sunreader.data.InternalStorageHandler;
 import example.com.sunreader.data.RSSFeedContract;
+import example.com.sunreader.data.RefreshHandler;
 
 
 public class FeedItemsFragment extends Fragment {
     private static final int FEED_LOADER = 0;
     private static final String LOG_TAG = FeedItemsFragment.class.getSimpleName();
     public static final String FEED_ID_ARG = "feed_id";
+    public static final String FEED_TITLE_ARG = "feed_title";
 
     private View mRootView;
     private ItemsViewController mItemsViewController;
@@ -40,6 +39,7 @@ public class FeedItemsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
     }
 
     @Override
@@ -51,6 +51,8 @@ public class FeedItemsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        //TODO delete here
+        Log.v(LOG_TAG, "onCreateView()");
         mRootView = inflater.inflate(R.layout.feed_items_list_fragment, container, false);
 
         mFeedItemsAdapter = new SimpleCursorAdapter(
@@ -94,26 +96,12 @@ public class FeedItemsFragment extends Fragment {
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
 
+        //TODO setOnRefresh here
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                // Get id from shared file
-                SharedPreferences sharedFile = getActivity().getSharedPreferences(
-                        getActivity().getString(R.string.reference_file_key),
-                        Context.MODE_PRIVATE
-                );
-                int feedId = sharedFile.getInt(FeedItemsFragment.FEED_ID_ARG, -1);
-
-                FeedItemsFragment feedItemsFragment = new FeedItemsFragment();
-                Bundle bundle = new Bundle();
-                bundle.putInt(FeedItemsFragment.FEED_ID_ARG, feedId);
-                feedItemsFragment.setArguments(bundle);
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container, feedItemsFragment)
-                        .commit();
-
-
-                new ItemsUpdater(getActivity(), feedId).execute();
+                RefreshHandler.refreshCurrentFeed(getActivity());
+                swipeLayout.setRefreshing(false);
             }
         });
 

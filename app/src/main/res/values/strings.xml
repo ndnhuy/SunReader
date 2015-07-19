@@ -6,7 +6,7 @@
     <string name="drawer_close">Close navigation drawer</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="search_title">Search</string>
-    <string name="search_hint">search</string>
+    <string name="search_hint">Enter a web title</string>
     <string name="reference_file_key">example.com.sunreader.PREFERENCE_FILE_KEY</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_share">Share</string>

@@ -201,7 +201,8 @@ public class ItemsViewController implements AdapterView.OnItemClickListener,
                     // Convert to readable date
                     try {
                         ((TextView) view).setText(
-                                DateConverter.getReadableDate(cursor.getString(COLUMN_DATE_INDEX))
+                                DateConverter.getDistanceTimeFromNow(cursor.getString(COLUMN_DATE_INDEX))
+                                + " ago"
                         );
                     } catch (ParseException e) {
                         e.printStackTrace();

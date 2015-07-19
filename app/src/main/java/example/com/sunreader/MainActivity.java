@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBarActivity;
@@ -23,10 +24,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import example.com.sunreader.controller.FeedNamesViewController;
+import example.com.sunreader.controller.ItemListPagerAdapter;
 import example.com.sunreader.controller.ItemsUpdater;
 import example.com.sunreader.controller.NetworkChecker;
+import example.com.sunreader.controller.SetActionBarTitleTask;
 import example.com.sunreader.data.ImageHandler;
 import example.com.sunreader.data.RSSFeedContract;
+import example.com.sunreader.data.RefreshHandler;
 import example.com.sunreader.data.SharedFileHandler;
 
 
@@ -39,7 +43,7 @@ public class MainActivity extends ActionBarActivity {
     SimpleCursorAdapter mFeedNamesAdapter;
     FeedNamesViewController mFeedNamesViewController;
     MenuItem searchMenuItem;
-
+    ViewPager mViewPager;
 
 
     @Override
@@ -48,82 +52,54 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         NetworkChecker.check(this);
-
         // Update all feeds
         new ItemsUpdater(this, -1).execute();
-
         setUpBasicUI();
+        setUpNavDrawer();
 
-        // Set up loader for side bar
-        mFeedNamesAdapter = new SimpleCursorAdapter(
-                this,
-                R.layout.one_feed_name_in_list,
+        //TODO LOG_TAG here
+        Log.v(LOG_TAG, "onCreate");
+        // Get all feeds id
+        Cursor cursor = this.getContentResolver().query(
+                RSSFeedContract.FeedEntry.CONTENT_URI,
+                new String[] {RSSFeedContract.FeedEntry._ID},
                 null,
-                new String[] {RSSFeedContract.FeedEntry.COLUMN_TITLE},
-                new int[] {R.id.feed_name_textview}
+                null,
+                RSSFeedContract.FeedEntry._ID + " ASC"
         );
+        // Create a list of feed's IDs would be in the pager
+        ItemListPagerAdapter.feedIDs.add(FeedNamesViewController.HOME_ID);
+        while (cursor.moveToNext()) {
+            // Copy data from cursor to array
+            ItemListPagerAdapter.feedIDs.add(cursor.getInt(0));
+        }
+        ItemListPagerAdapter.feedIDs.add(FeedNamesViewController.SAVED_FOR_LATER_ID);
 
-
-
-        ListView listView = (ListView) findViewById(R.id.left_drawer);
-
-        listView.setAdapter(mFeedNamesAdapter);
-
-        mFeedNamesViewController = new FeedNamesViewController(this, mFeedNamesAdapter, getSupportFragmentManager());
-        listView.setOnItemClickListener(mFeedNamesViewController);
-        listView.setOnItemLongClickListener(mFeedNamesViewController);
-
-        // Set onViewBinding
-        mFeedNamesAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+        ItemListPagerAdapter itemListPagerAdapter = new ItemListPagerAdapter(getSupportFragmentManager());
+        mViewPager = (ViewPager) findViewById(R.id.feed_pager);
+        mViewPager.setAdapter(itemListPagerAdapter);
+        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-                switch (columnIndex) {
-                    case FeedNamesViewController.COLUMN_TITLE_INDEX: {
-                        ((TextView) view).setText(cursor.getString(FeedNamesViewController.COLUMN_TITLE_INDEX));
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                //TODO delete here
+                Log.v(LOG_TAG, "onPageSelected(): " + position);
+                    int feedId = ItemListPagerAdapter.feedIDs.get(position);
+                    SharedFileHandler.saveFeedIdToSharedPrefFile(getApplicationContext(), feedId);
+
+                    // Update
+                    new SetActionBarTitleTask(getApplicationContext(), getSupportActionBar()).execute(feedId);
+                    new ItemsUpdater(getBaseContext(), feedId).execute();
+            }
 
 
-                        ViewGroup viewGroup = (ViewGroup) view.getParent();
-                        viewGroup.setBackgroundResource(0);
-                        ImageView imgView = (ImageView) viewGroup.findViewById(R.id.feed_icon_imageview);
-                        if (imgView != null) {
-                            long feedId = cursor.getLong(FeedNamesViewController.COLUMN_ID_INDEX);
-                            if (feedId == FeedNamesViewController.HOME_ID) {
-                                imgView.setImageResource(R.mipmap.ic_show_all);
-                            } else if (feedId == FeedNamesViewController.SAVED_FOR_LATER_ID) {
-                                imgView.setImageResource(R.mipmap.ic_show_saved);
-                                viewGroup.setBackgroundResource(R.drawable.box_layout);
-                            } else {
-
-                                new ImageHandler(getApplicationContext()).displayIconOfFeed
-                                        (
-                                                cursor.getString(FeedNamesViewController.COLUMN_ID_INDEX) + ".jpg",
-                                                imgView
-                                        );
-                            }
-
-                        } else {
-                            Log.e(LOG_TAG, "ImageView is null");
-                        }
-                        break;
-                    }
-                }
-
-
-                return false;
+            @Override
+            public void onPageScrollStateChanged(int state) {
             }
         });
-
-//        getSupportLoaderManager().initLoader(FEED_NAME_LOADER, null, mFeedNamesViewController);
-
-
-        if (savedInstanceState == null) {
-            FeedItemsFragment feedItemsFragment = new FeedItemsFragment();
-            Bundle bundle = new Bundle();
-            bundle.putInt(FeedItemsFragment.FEED_ID_ARG, -1);
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, feedItemsFragment)
-                    .commit();
-        }
     }
 
 
@@ -156,6 +132,56 @@ public class MainActivity extends ActionBarActivity {
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
 
+    }
+
+    private void setUpNavDrawer() {
+        // Setup side bar
+        mFeedNamesAdapter = new SimpleCursorAdapter(
+                this,
+                R.layout.one_feed_name_in_list,
+                null,
+                new String[] {RSSFeedContract.FeedEntry.COLUMN_TITLE},
+                new int[] {R.id.feed_name_textview}
+        );
+        ListView listView = (ListView) findViewById(R.id.left_drawer);
+        listView.setAdapter(mFeedNamesAdapter);
+        mFeedNamesViewController = new FeedNamesViewController(this, mFeedNamesAdapter, getSupportFragmentManager());
+        listView.setOnItemClickListener(mFeedNamesViewController);
+        listView.setOnItemLongClickListener(mFeedNamesViewController);
+        // Set onViewBinding
+        mFeedNamesAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+            @Override
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+                switch (columnIndex) {
+                    case FeedNamesViewController.COLUMN_TITLE_INDEX: {
+                        ((TextView) view).setText(cursor.getString(FeedNamesViewController.COLUMN_TITLE_INDEX));
+                        ViewGroup viewGroup = (ViewGroup) view.getParent();
+                        viewGroup.setBackgroundResource(0);
+                        ImageView imgView = (ImageView) viewGroup.findViewById(R.id.feed_icon_imageview);
+                        if (imgView != null) {
+                            long feedId = cursor.getLong(FeedNamesViewController.COLUMN_ID_INDEX);
+                            if (feedId == FeedNamesViewController.HOME_ID) {
+                                imgView.setImageResource(R.mipmap.ic_show_all);
+                            } else if (feedId == FeedNamesViewController.SAVED_FOR_LATER_ID) {
+                                imgView.setImageResource(R.mipmap.ic_show_saved);
+                                viewGroup.setBackgroundResource(R.drawable.box_layout);
+                            } else {
+
+                                new ImageHandler(getApplicationContext()).displayIconOfFeed
+                                        (
+                                                cursor.getString(FeedNamesViewController.COLUMN_ID_INDEX) + ".jpg",
+                                                imgView
+                                        );
+                            }
+                        } else {
+                            Log.e(LOG_TAG, "ImageView is null");
+                        }
+                        break;
+                    }
+                }
+                return false;
+            }
+        });
     }
 
 
@@ -206,36 +232,7 @@ public class MainActivity extends ActionBarActivity {
                 break;
             }
             case R.id.action_refresh: {
-
-                int feedId = SharedFileHandler.getSharedPrefFile(this).getInt(FeedItemsFragment.FEED_ID_ARG, -1);
-
-                FeedItemsFragment feedItemsFragment = new FeedItemsFragment();
-                Bundle bundle = new Bundle();
-                bundle.putInt(FeedItemsFragment.FEED_ID_ARG, feedId);
-                feedItemsFragment.setArguments(bundle);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container, feedItemsFragment)
-                        .commit();
-
-
-//                // Get feed url based on feed ID
-//                Cursor cursor = this.getContentResolver().query(
-//                        RSSFeedContract.FeedEntry.buildFeedUri(feedId),
-//                        new String[] {RSSFeedContract.FeedEntry.COLUMN_FEED_URL},
-//                        null,
-//                        null,
-//                        null
-//                );
-//
-//                String feedUrl = "";
-//                if (cursor.moveToFirst()) {
-//                    feedUrl = cursor.getString(0);
-//                }
-
-                new ItemsUpdater(this, feedId).execute();
-
-
-                //Toast.makeText(this, Integer.toString(feedId), Toast.LENGTH_SHORT).show();
+                RefreshHandler.refreshCurrentFeed(this);
                 break;
             }
         }
@@ -251,6 +248,8 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onResume() {
+        //TODO LOG_TAG here
+        Log.v(LOG_TAG, "onResume()");
         if (getSupportLoaderManager().getLoader(FEED_NAME_LOADER) != null) {
             getSupportLoaderManager().restartLoader(FEED_NAME_LOADER, null, mFeedNamesViewController);
         } else {
@@ -265,14 +264,18 @@ public class MainActivity extends ActionBarActivity {
         );
         int feedId = sharedFile.getInt(FeedItemsFragment.FEED_ID_ARG, -1);
 
-        Bundle feedIdBundle = new Bundle();
-        feedIdBundle.putInt(FeedItemsFragment.FEED_ID_ARG, feedId);
-        FeedItemsFragment feedItemsFragment = new FeedItemsFragment();
-        feedItemsFragment.setArguments(feedIdBundle);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.container, feedItemsFragment)
-                .commit();
+
+        mViewPager.getAdapter().notifyDataSetChanged();
+
+        //TODO delete
+//        Bundle feedIdBundle = new Bundle();
+//        feedIdBundle.putInt(FeedItemsFragment.FEED_ID_ARG, feedId);
+//        FeedItemsFragment feedItemsFragment = new FeedItemsFragment();
+//        feedItemsFragment.setArguments(feedIdBundle);
+//        getSupportFragmentManager()
+//                .beginTransaction()
+//                .replace(R.id.container, feedItemsFragment)
+//                .commit();
 
 
         if (searchMenuItem != null)
@@ -280,7 +283,6 @@ public class MainActivity extends ActionBarActivity {
 
         super.onResume();
     }
-
 
 
 }

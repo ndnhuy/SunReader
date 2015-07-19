@@ -13,7 +13,8 @@
 
     <item android:id="@+id/search"
         android:title="@string/search_title"
-        android:icon="@mipmap/ic_search_api_holo_light"
+        android:hint="someText"
+        android:icon="@mipmap/ic_add_grey"
         myapp:showAsAction="collapseActionView|ifRoom"
         myapp:actionViewClass="android.support.v7.widget.SearchView" />
 

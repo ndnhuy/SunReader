@@ -15,9 +15,16 @@ import example.com.sunreader.data.RSSFeedContract;
 import example.com.sunreader.data.SharedFileHandler;
 
 public class DetailItemActivity extends ActionBarActivity {
+    private final static String LOG_TAG = DetailItemActivity.class.getSimpleName();
     public static final String ITEM_ID = "item_id";
 
     private DetailItemPagerAdapter mDetailItemPagerAdapter;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

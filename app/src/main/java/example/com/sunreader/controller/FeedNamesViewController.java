@@ -2,8 +2,6 @@ package example.com.sunreader.controller;
 
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.os.AsyncTask;
@@ -13,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBarActivity;
@@ -26,6 +25,7 @@ import example.com.sunreader.FeedItemsFragment;
 import example.com.sunreader.R;
 import example.com.sunreader.data.InternalStorageHandler;
 import example.com.sunreader.data.RSSFeedContract;
+import example.com.sunreader.data.SharedFileHandler;
 
 public class FeedNamesViewController implements AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemLongClickListener {
     private final String LOG_TAG = FeedNamesViewController.class.getSimpleName();
@@ -47,23 +47,18 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
         mFeedNamesAdapter = feedNamesAdapter;
         mFragmentManager = fragmentManager;
 
-        mFeedNamesAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-            @Override
-            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-                return false;
-            }
-        });
+//        mFeedNamesAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+//            @Override
+//            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+//                return false;
+//            }
+//        });
     }
     private void updateUnderlyingItems(int feedId) {
         new ItemsUpdater(mActivity, feedId).execute();
     }
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        // Replace the current fragment in main view with new one.
-        mFragmentManager
-                .beginTransaction()
-                .replace(R.id.container, createFragmentContainsItemsOfSelectedFeed())
-                .commit();
 
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -73,21 +68,29 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
             }
         }, 500);
 
+        int curentFeedId = mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX);
         // Update underlying contents
-        updateUnderlyingItems(mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX));
+        updateUnderlyingItems(curentFeedId);
 
         // Change action bar title
         ((ActionBarActivity)mActivity).getSupportActionBar().setSubtitle(
                 mFeedNamesAdapter.getCursor().getString(COLUMN_TITLE_INDEX));
 
+        SharedFileHandler.saveFeedIdToSharedPrefFile(mActivity, curentFeedId);
+        SharedFileHandler.saveFeedTitleToSharedPrefFile(mActivity, mFeedNamesAdapter.getCursor().getString(COLUMN_TITLE_INDEX));
 
-        saveFeedIdToSharedRefFile();
+        ViewPager viewPager = (ViewPager) mActivity.findViewById(R.id.feed_pager);
+        viewPager.setCurrentItem(ItemListPagerAdapter.feedIDs.indexOf(curentFeedId));
     }
 
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
-        PopupMenu popup = new PopupMenu(mActivity, view);
+        int currentFeedId = mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX);
+        if (currentFeedId == FeedNamesViewController.HOME_ID || currentFeedId == FeedNamesViewController.SAVED_FOR_LATER_ID) {
+            return false;
+        }
 
+        PopupMenu popup = new PopupMenu(mActivity, view);
         popup.getMenuInflater()
                 .inflate(R.menu.feed_popup_menu, popup.getMenu());
 
@@ -98,20 +101,11 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
                 return true;
             }
         });
-
         popup.show();
         return true;
     }
 
 
-    private void saveFeedIdToSharedRefFile() {
-        SharedPreferences sharedPref = mActivity.getSharedPreferences(
-                mActivity.getString(R.string.reference_file_key),
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putInt(FeedItemsFragment.FEED_ID_ARG, mFeedNamesAdapter.getCursor().getInt(COLUMN_ID_INDEX));
-        editor.commit();
-    }
 
     private FeedItemsFragment createFragmentContainsItemsOfSelectedFeed() {
         // Create fragment with bundle contains ID of selected feed
@@ -141,7 +135,6 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
         // add headers for side bar
         String[] columnNames = data.getColumnNames();
         MatrixCursor matrixCursor = new MatrixCursor(columnNames, 1);
@@ -164,9 +157,17 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
                 rowBuilder.add(row);
             }
         }
-
-
         mFeedNamesAdapter.swapCursor(matrixCursor);
+
+
+//        // Update pager
+//        if (!data.moveToFirst()) return;
+//
+//        Ite
+//        ItemListPagerAdapter.feedIDs.add(data.getInt(COLUMN_ID_INDEX));
+//        while (data.moveToNext()) {
+//            ItemListPagerAdapter.feedIDs.add(data.getInt(COLUMN_ID_INDEX));
+//        }
     }
 
     @Override
@@ -223,6 +224,27 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
         @Override
         protected void onPostExecute(Void aVoid) {
             Toast.makeText(mActivity, "Delete successfully", Toast.LENGTH_SHORT).show();
+
+
+            ViewPager viewPager = (ViewPager) mActivity.findViewById(R.id.feed_pager);
+            int pos = ItemListPagerAdapter.feedIDs.indexOf(Integer.parseInt(feedId));
+            if (viewPager.getCurrentItem() == pos) {
+                if (pos == ItemListPagerAdapter.feedIDs.size() - 2) {
+                    viewPager.setCurrentItem(pos - 1);
+                    new SetActionBarTitleTask(mActivity, ((ActionBarActivity)mActivity).getSupportActionBar())
+                            .execute(ItemListPagerAdapter.feedIDs.get(pos - 1));
+                }
+                else {
+                    new SetActionBarTitleTask(mActivity, ((ActionBarActivity)mActivity).getSupportActionBar())
+                            .execute(ItemListPagerAdapter.feedIDs.get(pos + 1));
+                }
+            }
+
+
+
+            ItemListPagerAdapter.feedIDs.remove(pos);
+            viewPager.getAdapter().notifyDataSetChanged();
+
         }
     }
 

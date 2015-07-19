@@ -7,6 +7,7 @@ import android.content.ContentValues;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
@@ -25,7 +26,7 @@ import example.com.sunreader.value_object.RssFeed;
 
 
 public class SearchResultController extends AsyncTask<String, Void, RssFeed[]> {
-
+    private final String LOG_TAG = SearchResultController.class.getSimpleName();
     private Activity mContext;
     private ArrayAdapter<RssFeed> mFeedsAdapter;
     private ProgressDialog loadingDialog;
@@ -112,17 +113,19 @@ public class SearchResultController extends AsyncTask<String, Void, RssFeed[]> {
             feedValues.put(RSSFeedContract.FeedEntry.COLUMN_LINK, feed.getLink());
             feedValues.put(RSSFeedContract.FeedEntry.COLUMN_FEED_URL, feed.getFeedUrl());
 
-
             //TODO do data-thing in UI thread, this is so not good
             Uri uri = mContext.getContentResolver().insert(
                     RSSFeedContract.FeedEntry.CONTENT_URI,
                     feedValues
             );
-
             // Download icon and save it to internal storage
             new ImageHandler(mContext).saveImage(ImageHandler.BASE_FAVICON_URL + feed.getLink(),
                     InternalStorageHandler.FEED_ICON_DIRECTORY_NAME,
                     Long.toString(ContentUris.parseId(uri)) + ".jpg");
+
+            ItemListPagerAdapter.feedIDs.add(ItemListPagerAdapter.feedIDs.size() - 1, (int) ContentUris.parseId(uri));
+            //TODO delete here
+            Log.v(LOG_TAG, ItemListPagerAdapter.feedIDs.toString());
         }
     }
 

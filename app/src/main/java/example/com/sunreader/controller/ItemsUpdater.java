@@ -1,7 +1,7 @@
 package example.com.sunreader.controller;
 
 
-import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -16,20 +16,21 @@ import example.com.sunreader.data.RssService;
 
 public class ItemsUpdater extends AsyncTask<Void, Void, Void> {
     private final static String LOG_TAG = ItemsUpdater.class.getSimpleName();
-    private Activity mActivity;
+    private Context mActivity;
     private long mFeedId;
+    private Toast mToast;
 
 
-
-    public ItemsUpdater(Activity activity, long feedId) {
+    public ItemsUpdater(Context activity, long feedId) {
         mActivity = activity;
         mFeedId = feedId;
+        mToast = Toast.makeText(mActivity, "Loading...", Toast.LENGTH_SHORT);
     }
 
     @Override
     protected void onPreExecute() {
         if (NetworkChecker.check(mActivity)) {
-            Toast.makeText(mActivity, "Loading...", Toast.LENGTH_SHORT).show();
+            mToast.show();
         }
         else {
             this.cancel(true);
@@ -103,6 +104,6 @@ public class ItemsUpdater extends AsyncTask<Void, Void, Void> {
     }
     @Override
     protected void onPostExecute(Void aVoid) {
-
+        mToast.cancel();
     }
 }

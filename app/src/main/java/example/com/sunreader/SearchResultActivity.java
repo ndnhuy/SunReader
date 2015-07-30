@@ -28,7 +28,6 @@ public class SearchResultActivity extends ActionBarActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
 
         if (!NetworkChecker.check(this)) {
-
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, MessageFragment.createWithMessage("No results."))
                     .commit();
@@ -36,14 +35,6 @@ public class SearchResultActivity extends ActionBarActivity {
         else {
             handleIntent(getIntent());
         }
-
-
-
-//        if (savedInstanceState == null) {
-//            getSupportFragmentManager().beginTransaction()
-//                    .add(R.id.container, new SearchResultFragment())
-//                    .commit();
-//        }
     }
 
     @Override

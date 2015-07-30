@@ -14,16 +14,6 @@ public class NetworkChecker {
         else {
             // No connectivity - Show alert
             Toast.makeText(context, "No Network. Please check the connection", Toast.LENGTH_SHORT).show();
-//            AlertDialog alertDialog = new AlertDialog.Builder(context).create();
-//            alertDialog.setTitle("Warning");
-//            alertDialog.setMessage("No Network. Please check the connection.");
-//            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-//                new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        dialog.dismiss();
-//                    }
-//                });
-//            alertDialog.show();
             return false;
         }
     }

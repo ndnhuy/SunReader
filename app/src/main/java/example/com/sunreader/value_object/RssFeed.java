@@ -4,31 +4,15 @@ public class RssFeed {
     String mTitle;
     String mLink;
     String mFeedUrl;
-//    List<RssItem> mItems = null;
-//
-//    public RssFeed() {
-//        mItems = new ArrayList<RssItem>();
-//    }
-//    public RssFeed(String title, String link, String feedUrl, RssItem[] items) {
-//        mItems = new ArrayList<RssItem>();
-//        mTitle = title;
-//        mLink = link;
-//        mFeedUrl = feedUrl;
-//        if (items != null) {
-//            mItems = new ArrayList<RssItem>(Arrays.asList(items));
-//        }
-//    }
-
-//    public void putItem(RssItem item) {
-//        mItems.add(item);
-//    }
+    String mThumbnailUrl;
 
     public RssFeed() {}
 
-    public RssFeed(String title, String link, String feedUrl) {
+    public RssFeed(String title, String link, String feedUrl, String thumbnailUrl) {
         mTitle = title;
         mLink = link;
         mFeedUrl = feedUrl;
+        mThumbnailUrl = thumbnailUrl;
     }
 
     public void setLink(String link) {
@@ -50,5 +34,12 @@ public class RssFeed {
     }
     public String getFeedUrl() {
         return mFeedUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+        mThumbnailUrl = thumbnailUrl;
+    }
+    public String getThumbnailUrl() {
+        return mThumbnailUrl;
     }
 }

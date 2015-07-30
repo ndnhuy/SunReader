@@ -9,6 +9,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.squareup.picasso.Picasso;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -61,31 +63,43 @@ public class ImageHandler {
         }
         return "";
     }
-
-
     public void saveImage(String url, String dirName, String fileName) {
         new ImageDownloadAndSaveToStorage(url, dirName, fileName).execute();
     }
-
     public void displayIconOfFeed(String fileName, ImageView imgView) {
-        Bitmap bitmap = new InternalStorageHandler(mContext).loadImageFromStorage(
-                            InternalStorageHandler.FEED_ICON_DIRECTORY_NAME,
-                            fileName
-                        );
-        imgView.setImageBitmap(bitmap);
+//        Bitmap bitmap = new InternalStorageHandler(mContext).loadImageFromStorage(
+//                            InternalStorageHandler.FEED_ICON_DIRECTORY_NAME,
+//                            fileName
+//                        );
+//        imgView.setImageBitmap(bitmap);
+        Picasso.with(mContext)
+                .load("http://www.google.com/s2/favicons?domain=www.vnexpress.net")
+                .resize(50, 50)
+                .centerCrop()
+                .into(imgView);
     }
-    public void displayImage(String url, ImageView imgView) {
-        new ImageDownloadAndBindToView(url, imgView).execute();
+    public void loadImageInto(String url, ImageView imgView, int width, int height) {
+        Picasso.with(mContext)
+                .load(url)
+                .resize(width, height)
+                .centerCrop()
+                .into(imgView);
     }
-
-
+    public void loadImageInto(int resourceId, ImageView imgView, int width, int height) {
+        Picasso.with(mContext)
+                .load(resourceId)
+                .resize(width, height)
+                .centerCrop()
+                .into(imgView);
+    }
+    public void loadImageInto(int resourceId, ImageView imgView) {
+        Picasso.with(mContext)
+                .load(resourceId)
+                .into(imgView);
+    }
     public void loadingImageFromFileAndBindToView(String dirName, String fileName, ImageView imgView) {
         new LoadingImageFromFileAndBindToView(dirName, fileName, imgView).execute();
     }
-
-
-
-
     public class ImageDownloadAndSaveToStorage extends AsyncTask<Void, Void, Bitmap> {
         String mUrl;
         String mDirName;
@@ -121,7 +135,6 @@ public class ImageHandler {
             }
         }
     }
-
     public class ImageDownloadAndBindToView extends AsyncTask<Void, Void, Bitmap> {
         String mUrl;
         ImageView mImgView;
@@ -153,8 +166,6 @@ public class ImageHandler {
                 mImgView.setImageBitmap(result);
         }
     }
-
-
     public class LoadingImageFromFileAndBindToView extends AsyncTask<Void, Void, Bitmap> {
         private final String LOG_TAG = LoadingImageFromFileAndBindToView.class.getSimpleName();
 

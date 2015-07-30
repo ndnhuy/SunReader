@@ -41,18 +41,12 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
     public static final int COLUMN_TITLE_INDEX = 1;
     public static final int COLUMN_FEEDURL_INDEX = 2;
     public static final int COLUMN_LINK_INDEX = 3;
+    public static final int COLUMN_THUMBNAIL_INDEX = 4;
 
     public FeedNamesViewController(Activity activity, SimpleCursorAdapter feedNamesAdapter, FragmentManager fragmentManager) {
         mActivity = activity;
         mFeedNamesAdapter = feedNamesAdapter;
         mFragmentManager = fragmentManager;
-
-//        mFeedNamesAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-//            @Override
-//            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-//                return false;
-//            }
-//        });
     }
     private void updateUnderlyingItems(int feedId) {
         new ItemsUpdater(mActivity, feedId).execute();
@@ -126,7 +120,8 @@ public class FeedNamesViewController implements AdapterView.OnItemClickListener,
                 new String[]{RSSFeedContract.FeedEntry._ID,
                         RSSFeedContract.FeedEntry.COLUMN_TITLE,
                         RSSFeedContract.FeedEntry.COLUMN_FEED_URL,
-                        RSSFeedContract.FeedEntry.COLUMN_LINK},
+                        RSSFeedContract.FeedEntry.COLUMN_LINK,
+                        RSSFeedContract.FeedEntry.COLUMN_THUMBNAIL_URL},
                 null,
                 null,
                 null

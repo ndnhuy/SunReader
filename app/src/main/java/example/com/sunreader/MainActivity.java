@@ -52,13 +52,13 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         NetworkChecker.check(this);
+
         // Update all feeds
         new ItemsUpdater(this, -1).execute();
-        setUpBasicUI();
-        setUpNavDrawer();
 
-        //TODO LOG_TAG here
-        Log.v(LOG_TAG, "onCreate");
+        setUpBasicNavigationDrawer();
+        setUpListViewInLeftDrawer();
+
         // Get all feeds id
         Cursor cursor = this.getContentResolver().query(
                 RSSFeedContract.FeedEntry.CONTENT_URI,
@@ -95,7 +95,6 @@ public class MainActivity extends ActionBarActivity {
                     new ItemsUpdater(getBaseContext(), feedId).execute();
             }
 
-
             @Override
             public void onPageScrollStateChanged(int state) {
             }
@@ -105,7 +104,7 @@ public class MainActivity extends ActionBarActivity {
 
 
 
-    private void setUpBasicUI() {
+    private void setUpBasicNavigationDrawer() {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -130,11 +129,9 @@ public class MainActivity extends ActionBarActivity {
             }
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-
-
     }
 
-    private void setUpNavDrawer() {
+    private void setUpListViewInLeftDrawer() {
         // Setup side bar
         mFeedNamesAdapter = new SimpleCursorAdapter(
                 this,
@@ -161,16 +158,28 @@ public class MainActivity extends ActionBarActivity {
                         if (imgView != null) {
                             long feedId = cursor.getLong(FeedNamesViewController.COLUMN_ID_INDEX);
                             if (feedId == FeedNamesViewController.HOME_ID) {
-                                imgView.setImageResource(R.mipmap.ic_show_all);
+                                new ImageHandler(getApplicationContext()).loadImageInto(
+                                        R.mipmap.ic_show_all,
+                                        imgView
+                                );
+
+                                //TODO clear
+                                //imgView.setImageResource(R.mipmap.ic_show_all);
                             } else if (feedId == FeedNamesViewController.SAVED_FOR_LATER_ID) {
-                                imgView.setImageResource(R.mipmap.ic_show_saved);
+                                new ImageHandler(getApplicationContext()).loadImageInto(
+                                        R.mipmap.ic_show_saved,
+                                        imgView
+                                );
+                                //TODO clear
+                                //imgView.setImageResource(R.mipmap.ic_show_saved);
                                 viewGroup.setBackgroundResource(R.drawable.box_layout);
                             } else {
-
-                                new ImageHandler(getApplicationContext()).displayIconOfFeed
+                                new ImageHandler(getApplicationContext()).loadImageInto
                                         (
-                                                cursor.getString(FeedNamesViewController.COLUMN_ID_INDEX) + ".jpg",
-                                                imgView
+                                                cursor.getString(FeedNamesViewController.COLUMN_THUMBNAIL_INDEX),
+                                                imgView,
+                                                20,
+                                                20
                                         );
                             }
                         } else {
@@ -198,9 +207,7 @@ public class MainActivity extends ActionBarActivity {
 
         SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-
         searchMenuItem = menu.findItem(R.id.search);
-
         SearchView searchView =
                 (SearchView) MenuItemCompat.getActionView(searchMenuItem);
         searchView.setSearchableInfo(
@@ -237,7 +244,6 @@ public class MainActivity extends ActionBarActivity {
             }
         }
 
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -248,14 +254,11 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onResume() {
-        //TODO LOG_TAG here
-        Log.v(LOG_TAG, "onResume()");
         if (getSupportLoaderManager().getLoader(FEED_NAME_LOADER) != null) {
             getSupportLoaderManager().restartLoader(FEED_NAME_LOADER, null, mFeedNamesViewController);
         } else {
             getSupportLoaderManager().initLoader(FEED_NAME_LOADER, null, mFeedNamesViewController);
         }
-
         // Reload fragment
         // Get id from shared file
         SharedPreferences sharedFile = this.getSharedPreferences(
@@ -266,17 +269,6 @@ public class MainActivity extends ActionBarActivity {
 
 
         mViewPager.getAdapter().notifyDataSetChanged();
-
-        //TODO delete
-//        Bundle feedIdBundle = new Bundle();
-//        feedIdBundle.putInt(FeedItemsFragment.FEED_ID_ARG, feedId);
-//        FeedItemsFragment feedItemsFragment = new FeedItemsFragment();
-//        feedItemsFragment.setArguments(feedIdBundle);
-//        getSupportFragmentManager()
-//                .beginTransaction()
-//                .replace(R.id.container, feedItemsFragment)
-//                .commit();
-
 
         if (searchMenuItem != null)
             MenuItemCompat.collapseActionView(searchMenuItem);

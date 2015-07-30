@@ -4,7 +4,6 @@ package example.com.sunreader.controller;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -40,7 +39,6 @@ public class ItemsUpdater extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... voids) {
-        Log.v(LOG_TAG, "Start downloading");
         try {
             if (mFeedId == FeedNamesViewController.HOME_ID) {
                 // Get id and link of all feeds
@@ -62,8 +60,6 @@ public class ItemsUpdater extends AsyncTask<Void, Void, Void> {
                                     cursor.getLong(cursor.getColumnIndex(RSSFeedContract.FeedEntry._ID))
                             );
                 }
-
-
             }
             else if (mFeedId == FeedNamesViewController.SAVED_FOR_LATER_ID) {
                 // nothing to do
@@ -71,8 +67,6 @@ public class ItemsUpdater extends AsyncTask<Void, Void, Void> {
             else {
                 updateSpecificFeed();
             }
-
-
         } catch (IOException e) {
             e.printStackTrace();
         } catch (JSONException e) {

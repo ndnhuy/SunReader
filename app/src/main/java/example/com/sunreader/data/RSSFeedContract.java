@@ -19,6 +19,7 @@ public class RSSFeedContract {
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_LINK = "link";
         public static final String COLUMN_FEED_URL = "feedUrl";
+        public static final String COLUMN_THUMBNAIL_URL = "thumbnailUrl";
 
 
         public static Uri buildFeedUri(long id) {

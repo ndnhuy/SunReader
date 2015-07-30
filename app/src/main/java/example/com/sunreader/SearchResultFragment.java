@@ -18,7 +18,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import example.com.sunreader.controller.ImageLoaderSingleton;
 import example.com.sunreader.controller.SearchResultController;
 import example.com.sunreader.data.ImageHandler;
 import example.com.sunreader.data.RSSFeedContract;
@@ -67,9 +66,6 @@ public class SearchResultFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
     }
 
-
-
-
     private class ResultsAdapter extends ArrayAdapter<RssFeed> {
 
         public ResultsAdapter(Context context, List<RssFeed> feeds) {
@@ -81,18 +77,21 @@ public class SearchResultFragment extends Fragment {
             RssFeed feed = getItem(position);
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.one_feed_item_in_results_list, parent, false);
-
             }
 
             // Setup icon
             ImageView imgView = (ImageView) convertView.findViewById(R.id.icon_imageview);
-            ImageLoaderSingleton.getInstance(getActivity()).DisplayImage(
+            //TODO use Picasso here to load feed's icon
+            new ImageHandler(getContext()).loadImageInto(
                     ImageHandler.BASE_FAVICON_URL + feed.getLink(),
-                    imgView
+                    imgView,
+                    30,
+                    30
             );
-
-//            new ImageHandler(getActivity()).displayImage(ImageHandler.BASE_FAVICON_URL + feed.getLink(), imgView);
-//            Log.v("SearchResultFragment", baseUrl + feed.getLink());
+//            ImageLoaderSingleton.getInstance(getActivity()).DisplayImage(
+//                    ImageHandler.BASE_FAVICON_URL + feed.getLink(),
+//                    imgView
+//            );
 
             TextView feedNameTextView = (TextView) convertView.findViewById(R.id.feed_name_textview);
             feedNameTextView.setText(feed.getName());

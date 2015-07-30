@@ -23,6 +23,7 @@ public class RSSFeedDBHelper extends SQLiteOpenHelper {
                 RSSFeedContract.FeedEntry.COLUMN_TITLE + " TEXT NOT NULL," +
                 RSSFeedContract.FeedEntry.COLUMN_LINK + " TEXT UNIQUE NOT NULL," +
                 RSSFeedContract.FeedEntry.COLUMN_FEED_URL + " TEXT UNIQUE NOT NULL, " +
+                RSSFeedContract.FeedEntry.COLUMN_THUMBNAIL_URL + " TEXT UNIQUE NOT NULL, " +
                 "UNIQUE (" + RSSFeedContract.FeedEntry.COLUMN_LINK + ") ON CONFLICT IGNORE" +
                 " )";
         final String SQL_CREATE_ITEM_TABLE = "CREATE TABLE " + RSSFeedContract.ItemEntry.TABLE_NAME

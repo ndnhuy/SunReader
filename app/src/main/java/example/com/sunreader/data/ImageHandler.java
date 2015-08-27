@@ -32,7 +32,7 @@ public class ImageHandler {
     }
 
 
-    public String extractThumnailFromContent(int itemId) {
+    public String extractThumnailUrlFromContent(int itemId) {
         // Get content based on the id
         Cursor cursor = mContext.getContentResolver().query(
                 RSSFeedContract.ItemEntry.buildItemUri(itemId),
@@ -67,23 +67,47 @@ public class ImageHandler {
         new ImageDownloadAndSaveToStorage(url, dirName, fileName).execute();
     }
     public void displayIconOfFeed(String fileName, ImageView imgView) {
-//        Bitmap bitmap = new InternalStorageHandler(mContext).loadImageFromStorage(
-//                            InternalStorageHandler.FEED_ICON_DIRECTORY_NAME,
-//                            fileName
-//                        );
-//        imgView.setImageBitmap(bitmap);
         Picasso.with(mContext)
                 .load("http://www.google.com/s2/favicons?domain=www.vnexpress.net")
                 .resize(50, 50)
                 .centerCrop()
                 .into(imgView);
     }
-    public void loadImageInto(String url, ImageView imgView, int width, int height) {
-        Picasso.with(mContext)
-                .load(url)
-                .resize(width, height)
-                .centerCrop()
-                .into(imgView);
+    public void loadImageInto(String url, ImageView imgView, int resIdWidth, int resIdHeight) {
+        if (url != "") {
+            Picasso.with(mContext)
+                    .load(url)
+                    .resizeDimen(resIdWidth, resIdHeight)
+                    .centerInside()
+                    .placeholder(R.drawable.stub)
+                    .error(R.drawable.stub)
+                    .into(imgView);
+        }
+    }
+//    public void loadImageInto(int widthResId, int heightResId, String url, ImageView imgView) {
+//        if (url != "") {
+//            Picasso.with(mContext)
+//                    .load(url)
+//                    .placeholder(R.drawable.stub)
+//                    .error(R.drawable.stub)
+//                    .resizeDimen(widthResId, heightResId)
+//                    .centerInside()
+//                    .into(imgView);
+//        }
+//        else {
+//            Picasso.with(mContext)
+//                    .load(R.drawable.stub)
+//                    .resizeDimen(widthResId, heightResId)
+//                    .centerInside()
+//                    .into(imgView);
+//        }
+//    }
+    public void loadImageInto(String url, ImageView imgView) {
+        if (url != "") {
+            Picasso.with(mContext)
+                    .load(url)
+                    .into(imgView);
+        }
     }
     public void loadImageInto(int resourceId, ImageView imgView, int width, int height) {
         Picasso.with(mContext)
@@ -97,6 +121,7 @@ public class ImageHandler {
                 .load(resourceId)
                 .into(imgView);
     }
+
     public void loadingImageFromFileAndBindToView(String dirName, String fileName, ImageView imgView) {
         new LoadingImageFromFileAndBindToView(dirName, fileName, imgView).execute();
     }

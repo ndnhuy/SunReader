@@ -85,14 +85,12 @@ public class MainActivity extends ActionBarActivity {
 
             @Override
             public void onPageSelected(int position) {
-                //TODO delete here
-                Log.v(LOG_TAG, "onPageSelected(): " + position);
-                    int feedId = ItemListPagerAdapter.feedIDs.get(position);
-                    SharedFileHandler.saveFeedIdToSharedPrefFile(getApplicationContext(), feedId);
+                int feedId = ItemListPagerAdapter.feedIDs.get(position);
+                SharedFileHandler.saveFeedIdToSharedPrefFile(getApplicationContext(), feedId);
 
-                    // Update
-                    new SetActionBarTitleTask(getApplicationContext(), getSupportActionBar()).execute(feedId);
-                    new ItemsUpdater(getBaseContext(), feedId).execute();
+                // Update
+                new SetActionBarTitleTask(getApplicationContext(), getSupportActionBar()).execute(feedId);
+                new ItemsUpdater(getBaseContext(), feedId).execute();
             }
 
             @Override
@@ -163,23 +161,19 @@ public class MainActivity extends ActionBarActivity {
                                         imgView
                                 );
 
-                                //TODO clear
-                                //imgView.setImageResource(R.mipmap.ic_show_all);
                             } else if (feedId == FeedNamesViewController.SAVED_FOR_LATER_ID) {
                                 new ImageHandler(getApplicationContext()).loadImageInto(
                                         R.mipmap.ic_show_saved,
                                         imgView
                                 );
-                                //TODO clear
-                                //imgView.setImageResource(R.mipmap.ic_show_saved);
                                 viewGroup.setBackgroundResource(R.drawable.box_layout);
                             } else {
                                 new ImageHandler(getApplicationContext()).loadImageInto
                                         (
                                                 cursor.getString(FeedNamesViewController.COLUMN_THUMBNAIL_INDEX),
                                                 imgView,
-                                                20,
-                                                20
+                                                R.dimen.feed_icon_size_in_nav,
+                                                R.dimen.feed_icon_size_in_nav
                                         );
                             }
                         } else {

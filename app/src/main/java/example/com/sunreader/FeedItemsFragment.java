@@ -32,27 +32,22 @@ public class FeedItemsFragment extends Fragment {
     private SimpleCursorAdapter mFeedItemsAdapter = null;
 
 
-    public FeedItemsFragment() {
-
-    }
+    public FeedItemsFragment() {}
 
     @Override
     public void onResume() {
         super.onResume();
-
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        //TODO delete here
-        Log.v(LOG_TAG, "onCreateView()");
+
         mRootView = inflater.inflate(R.layout.feed_items_list_fragment, container, false);
 
         mFeedItemsAdapter = new SimpleCursorAdapter(
@@ -72,7 +67,6 @@ public class FeedItemsFragment extends Fragment {
 
         ListView listView = (ListView) mRootView.findViewById(R.id.listview_feeds);
         listView.setAdapter(mFeedItemsAdapter);
-
 
         mItemsViewController = new ItemsViewController(getActivity(), mFeedItemsAdapter);
         listView.setOnItemClickListener(mItemsViewController);

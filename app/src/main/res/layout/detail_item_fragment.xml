@@ -34,13 +34,19 @@
 
 
 
-    <WebView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/detail_textview"
-        android:layout_weight="1"
-        android:layout_marginTop="20dp"
-        android:scrollbars="none"/>
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/detail_textview"
+            android:layout_marginTop="20dp"
+            android:scrollbars="none"/>
+
+    </ScrollView>
+
 
     <Button
         android:id="@+id/visitwebsite_button"

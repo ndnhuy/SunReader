@@ -38,7 +38,6 @@ public class ItemListPagerAdapter extends FragmentStatePagerAdapter {
     }
 
     public static void addFeedIdToBeShown(int feedId) {
-
         feedIDs.add(feedId);
     }
 

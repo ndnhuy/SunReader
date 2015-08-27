@@ -30,7 +30,6 @@ import example.com.sunreader.data.DateConverter;
 import example.com.sunreader.data.ImageHandler;
 import example.com.sunreader.data.RSSFeedContract;
 import example.com.sunreader.data.SharedFileHandler;
-import example.com.sunreader.libs.ImageLoader;
 
 public class ItemsViewController implements AdapterView.OnItemClickListener,
                                             LoaderManager.LoaderCallbacks<Cursor>,
@@ -94,16 +93,14 @@ public class ItemsViewController implements AdapterView.OnItemClickListener,
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        int feedId = -1;
+        int feedId = FeedNamesViewController.HOME_ID;
         if (args != null) {
             feedId = args.getInt(FeedItemsFragment.FEED_ID_ARG);
         }
 
         Uri uri;
         if (feedId == FeedNamesViewController.HOME_ID) {
-            // Load all items
             uri = RSSFeedContract.ItemEntry.CONTENT_URI;
-
         }
         else if (feedId == FeedNamesViewController.SAVED_FOR_LATER_ID) {
             return new CursorLoader(
@@ -163,16 +160,12 @@ public class ItemsViewController implements AdapterView.OnItemClickListener,
 
 
     public class ItemsViewBinder implements SimpleCursorAdapter.ViewBinder {
-
-
         @Override
         public boolean setViewValue(View view, final Cursor cursor, int columnIndex) {
             switch (columnIndex) {
                 case COLUMN_CONTENT_SNIPPET_INDEX: {
-
                     loadThumbnail(view, cursor.getInt(COLUMN_ID_INDEX));
                     ((TextView) view).setText(cursor.getString(COLUMN_CONTENT_SNIPPET_INDEX));
-
                     return true;
                 }
                 case COLUMN_TITLE_INDEX: {
@@ -212,7 +205,6 @@ public class ItemsViewController implements AdapterView.OnItemClickListener,
 
             }
 
-
             return false;
         }
 
@@ -225,11 +217,22 @@ public class ItemsViewController implements AdapterView.OnItemClickListener,
                 Log.e(LOG_TAG, "Cannot retrieve ImageView");
                 return false;
             }
-            ImageLoader imageLoader = ImageLoaderSingleton.getInstance(mActivity);
-            imageLoader.DisplayImage(
-                    new ImageHandler(mActivity).extractThumnailFromContent(itemId),
-                    imgView
+
+            // using picasso to load thumbnail for the item
+            new ImageHandler(mActivity).loadImageInto(
+                    new ImageHandler(mActivity).extractThumnailUrlFromContent(itemId),
+                    imgView,
+                    R.dimen.thumbnail_image_size,
+                    R.dimen.thumbnail_image_size
             );
+
+
+            //TODO Dont need to to this
+//            ImageLoader imageLoader = ImageLoaderSingleton.getInstance(mActivity);
+//            imageLoader.DisplayImage(
+//                    new ImageHandler(mActivity).extractThumnailUrlFromContent(itemId),
+//                    imgView
+//            );
             return true;
         }
 

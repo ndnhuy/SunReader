@@ -4,35 +4,45 @@ package example.com.sunreader.controller;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.Html;
+import android.text.Spanned;
+import android.util.Log;
 import android.view.View;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.io.UnsupportedEncodingException;
+import com.squareup.picasso.Picasso;
+
 import java.text.ParseException;
 
 import example.com.sunreader.DetailItemActivity;
 import example.com.sunreader.R;
 import example.com.sunreader.data.DateConverter;
+import example.com.sunreader.data.PicassoImageTarget;
 import example.com.sunreader.data.RSSFeedContract;
 
 public class DetailItemViewController implements LoaderManager.LoaderCallbacks<Cursor> {
     private final String LOG_TAG = DetailItemActivity.class.getSimpleName();
+    private Spanned spanned;
     Activity mActivity;
     private View mRootView;
+    private TextView mTextView;
+    private Spanned mSpanned;
 
     public DetailItemViewController(Activity activity, View rootView) {
         mActivity = activity;
         mRootView = rootView;
     }
 
+    public View getRootView() {
+        return mRootView;
+    }
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         int itemId = -1;
@@ -77,38 +87,28 @@ public class DetailItemViewController implements LoaderManager.LoaderCallbacks<C
     }
 
     private void bindInformationToViews(Cursor data) throws ParseException {
+        //TODO Print rootView hashcode
+        Log.v(LOG_TAG, "mRootView in DetailItemViewController: " + mRootView.hashCode());
         // Setup details view
-        String rawDetail = data.getString(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_CONTENT));
-        byte[] bytes = null;
-        String html = "";
-        try {
-            bytes = rawDetail.getBytes("UTF-8");
-            html = new String(bytes, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        String htmlDetail = data.getString(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_CONTENT));
+
+        if (mTextView == null) {
+            mTextView = (TextView) mRootView.findViewById(R.id.detail_textview);
         }
-
-        WebView view = (WebView) mRootView.findViewById(R.id.detail_textview);
-        WebSettings ws = view.getSettings();
-        ws.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
-        ws.getPluginState();
-        ws.setPluginState(WebSettings.PluginState.ON);
-        ws.setJavaScriptEnabled(true);
-
-        view.loadData(html, "text/html", "utf-8");
+        if (mSpanned == null) {
+            mSpanned = Html.fromHtml(htmlDetail, new ImageGetter(mTextView, spanned), null);
+        }
+        mTextView.setText(spanned);
 
         bindTextToTextView(
                 (TextView) mRootView.findViewById(R.id.title_detail_item_textview),
                 data.getString(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_TITLE))
         );
-
-
         String dateStr = data.getString(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_PUBLISHED_DATETEXT));
         bindTextToTextView(
                 (TextView) mRootView.findViewById(R.id.date_detail_item_textview),
                 DateConverter.getReadableDate(dateStr)
         );
-
         bindTextToTextView(
                 (TextView) mRootView.findViewById(R.id.author_detail_item_textview),
                 data.getString(data.getColumnIndex(RSSFeedContract.ItemEntry.COLUMN_AUTHOR))
@@ -122,6 +122,30 @@ public class DetailItemViewController implements LoaderManager.LoaderCallbacks<C
 
     }
 
+    class ImageGetter implements Html.ImageGetter {
+        TextView mTextView;
+        Spanned mSpanned;
 
+        public ImageGetter(TextView textView, Spanned sp) {
+            mTextView = textView;
+            mSpanned = sp;
+        }
+        @Override
+        public Drawable getDrawable(String s) {
+            Log.v(LOG_TAG, "Source: " + s);
+//            PicassoImageTarget.imageTargets.add(new PicassoImageTarget(mActivity, mTextView, mSpanned));
+//            PicassoImageTarget imageTarget = (PicassoImageTarget) PicassoImageTarget.imageTargets.get(
+//                    PicassoImageTarget.imageTargets.size() - 1);
+            PicassoImageTarget imageTarget = new PicassoImageTarget(mActivity, mTextView, mSpanned);
+            mTextView.setTag(imageTarget);
+            Picasso.with(mActivity)
+                    .load(s)
+                    .placeholder(R.mipmap.ic_launcher)
+                    .error(R.mipmap.ic_launcher)
+                    .into(imageTarget);
+
+            return imageTarget.getPlaceHolderDrawable();
+        }
+    }
 
 }

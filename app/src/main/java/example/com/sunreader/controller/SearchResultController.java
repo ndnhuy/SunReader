@@ -118,12 +118,6 @@ public class SearchResultController extends AsyncTask<String, Void, RssFeed[]> {
                     feedValues
             );
 
-//            //TODO Dont need to do this, clear now
-//            // Download icon and save it to internal storage
-//            new ImageHandler(mContext).saveImage(ImageHandler.BASE_FAVICON_URL + feed.getLink(),
-//                    InternalStorageHandler.FEED_ICON_DIRECTORY_NAME,
-//                    Long.toString(ContentUris.parseId(uri)) + ".jpg");
-
             ItemListPagerAdapter.feedIDs.add(ItemListPagerAdapter.feedIDs.size() - 1, (int) ContentUris.parseId(uri));
         }
     }

@@ -46,10 +46,15 @@ public class DetailItemFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.detail_item_fragment, container, false);
-        mDetailItemViewController = new DetailItemViewController(getActivity(), mRootView);
+        Log.v(LOG_TAG, "onCreateView in DetailItemFragment");
+        if (mDetailItemViewController == null) {
+            mRootView = inflater.inflate(R.layout.detail_item_fragment, container, false);
+            mDetailItemViewController = new DetailItemViewController(getActivity(), mRootView);
+        }
+        else {
+            mRootView = mDetailItemViewController.getRootView();
+        }
         getLoaderManager().initLoader(DETAIL_ITEM_LOADER, getArguments(), mDetailItemViewController);
-
         return mRootView;
     }
 

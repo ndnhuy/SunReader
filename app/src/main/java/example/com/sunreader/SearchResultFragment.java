@@ -81,17 +81,12 @@ public class SearchResultFragment extends Fragment {
 
             // Setup icon
             ImageView imgView = (ImageView) convertView.findViewById(R.id.icon_imageview);
-            //TODO use Picasso here to load feed's icon
             new ImageHandler(getContext()).loadImageInto(
                     ImageHandler.BASE_FAVICON_URL + feed.getLink(),
                     imgView,
-                    30,
-                    30
+                    R.dimen.feed_icon_size_in_search_results,
+                    R.dimen.feed_icon_size_in_search_results
             );
-//            ImageLoaderSingleton.getInstance(getActivity()).DisplayImage(
-//                    ImageHandler.BASE_FAVICON_URL + feed.getLink(),
-//                    imgView
-//            );
 
             TextView feedNameTextView = (TextView) convertView.findViewById(R.id.feed_name_textview);
             feedNameTextView.setText(feed.getName());
